@@ -204,8 +204,10 @@ service cloud.firestore {
         // Everyone with the link can see what's been claimed.
         allow read: if isAdmin() || communityMenu(menuId).active == true;
 
-        // Signed-in contributors add dishes under their own UID.
+        // Signed-in contributors add dishes under their own UID. Entry IDs are
+        // "<uid>_<0-9>", which caps each person at 10 dishes per potluck.
         allow create: if request.auth != null
+          && entryId.matches(request.auth.uid + '_[0-9]')
           && request.resource.data.uid == request.auth.uid
           && isOpenForEntries(menuId)
           && isValidEntry(menuId, request.resource.data)

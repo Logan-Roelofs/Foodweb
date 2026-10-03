@@ -62,7 +62,7 @@ export function AdminRecipesPage() {
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-semibold">{r.title}</div>
-                  <div className="text-xs text-cocoa-700/70">
+                  <div className="text-xs text-cocoa-500">
                     {categoryName(r.categoryId) ?? 'No category'} · updated{' '}
                     {r.updatedAt?.toDate().toLocaleDateString()}
                   </div>

@@ -96,7 +96,7 @@ export function RecipesPage() {
 
         {usedTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Tags">
-            <span className="text-sm text-cocoa-700/70">Tags:</span>
+            <span className="text-sm text-cocoa-500">Tags:</span>
             {usedTags.map((t) => (
               <button
                 key={t.id}
@@ -134,7 +134,7 @@ export function RecipesPage() {
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-cocoa-700/70">
+            <p className="mb-4 text-sm text-cocoa-500">
               {filtered.length} {filtered.length === 1 ? 'recipe' : 'recipes'}
             </p>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -18,22 +18,39 @@ export function RecipePage() {
 
   useTitle(recipe?.title)
 
+  // Published recipes show right away. Anything else (an admin previewing a
+  // draft) is looked up directly once we know who's signed in.
+  const [needsLookup, setNeedsLookup] = useState(false)
+
   useEffect(() => {
-    // Wait for auth so an admin previewing a draft is recognized.
-    if (authLoading || !recipeId) return
+    if (!recipeId) return
     let active = true
     setRecipe(undefined)
+    setNeedsLookup(false)
     loadPublishedRecipes()
-      .then((all) => all.find((r) => r.id === recipeId) ?? getRecipe(recipeId))
-      .catch(() => getRecipe(recipeId))
-      .then(
-        (r) => active && setRecipe(r),
-        (e) => active && setError(e),
-      )
+      .then((all) => all.find((r) => r.id === recipeId))
+      .catch(() => undefined)
+      .then((found) => {
+        if (!active) return
+        if (found) setRecipe(found)
+        else setNeedsLookup(true)
+      })
     return () => {
       active = false
     }
-  }, [recipeId, authLoading, isAdmin])
+  }, [recipeId])
+
+  useEffect(() => {
+    if (!needsLookup || authLoading || !recipeId) return
+    let active = true
+    getRecipe(recipeId).then(
+      (r) => active && setRecipe(r),
+      (e) => active && setError(e),
+    )
+    return () => {
+      active = false
+    }
+  }, [needsLookup, authLoading, isAdmin, recipeId])
 
   if (error) return <ErrorNote>{errorMessage(error)}</ErrorNote>
   if (recipe === undefined) return <Loading />

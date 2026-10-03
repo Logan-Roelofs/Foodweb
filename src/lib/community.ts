@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -8,6 +7,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc,
 } from 'firebase/firestore'
 import { db } from './firebase'
@@ -65,8 +65,23 @@ export type EntryInput = Pick<
   'displayName' | 'course' | 'dishName' | 'description' | 'link' | 'recipeText'
 >
 
-export async function addEntry(menuId: string, uid: string, input: EntryInput): Promise<void> {
-  await addDoc(entriesCol(menuId), {
+/** Each person gets 10 dish slots per potluck; the rules only accept IDs "<uid>_<0-9>". */
+export const MAX_DISHES_PER_PERSON = 10
+
+export async function addEntry(
+  menuId: string,
+  uid: string,
+  input: EntryInput,
+  existing: Entry[],
+): Promise<void> {
+  const taken = new Set(existing.map((e) => e.id))
+  const slot = Array.from({ length: MAX_DISHES_PER_PERSON }, (_, i) => `${uid}_${i}`).find(
+    (id) => !taken.has(id),
+  )
+  if (!slot) {
+    throw new Error(`You've already added ${MAX_DISHES_PER_PERSON} dishes. Remove one to add another.`)
+  }
+  await setDoc(doc(entriesCol(menuId), slot), {
     ...input,
     uid,
     createdAt: serverTimestamp(),

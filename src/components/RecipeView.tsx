@@ -73,14 +73,14 @@ export function RecipeView({
 
       {recipe.photoUrl && (
         <div className="mt-8 aspect-[3/2] overflow-hidden rounded-3xl shadow-sm print:mx-auto print:mt-4 print:h-56 print:w-auto print:shadow-none">
-          <RecipePhoto recipe={recipe} />
+          <RecipePhoto recipe={recipe} alt={`Photo of ${recipe.title}`} />
         </div>
       )}
 
       <dl className="mt-8 grid grid-cols-3 divide-x divide-cream-200 rounded-3xl bg-cream-50 py-4 text-center ring-1 ring-cream-200 print:mt-4 print:py-2">
         {times.map(([label, minutes]) => (
           <div key={label}>
-            <dt className="text-xs font-semibold tracking-wider text-cocoa-700/70 uppercase">{label}</dt>
+            <dt className="text-xs font-semibold tracking-wider text-cocoa-500 uppercase">{label}</dt>
             <dd className="mt-1 font-serif text-lg">{formatMinutes(minutes) || '—'}</dd>
           </div>
         ))}

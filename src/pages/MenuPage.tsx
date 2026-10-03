@@ -113,7 +113,7 @@ export function MenuPage() {
                         {r.title}
                       </h3>
                       {r.description && (
-                        <p className="mx-auto mt-1 max-w-md text-cocoa-700/80">{r.description}</p>
+                        <p className="mx-auto mt-1 max-w-md text-cocoa-500">{r.description}</p>
                       )}
                       <span className="mt-2 inline-block text-sm font-semibold text-terracotta-600 group-hover:underline">
                         View recipe →

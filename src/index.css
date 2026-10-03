@@ -5,10 +5,12 @@
   --color-cream-50: #fdf9f3;
   --color-cream-100: #f7efe3;
   --color-cream-200: #efe1cc;
-  --color-terracotta-500: #b85c38;
+  --color-terracotta-500: #b25835;
   --color-terracotta-600: #9c4a2b;
   --color-terracotta-700: #7d3a21;
   --color-olive-600: #6b7046;
+  --color-olive-700: #646741;
+  --color-cocoa-500: #7a5d4f;
   --color-cocoa-700: #5c4033;
   --color-cocoa-900: #3a2a22;
 
@@ -24,6 +26,11 @@
   h2,
   h3 {
     @apply font-serif;
+  }
+  /* Clear keyboard focus everywhere (inputs have their own ring). */
+  :where(a, button, summary, select, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--color-terracotta-500);
+    outline-offset: 2px;
   }
 }
 

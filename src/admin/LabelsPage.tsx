@@ -63,7 +63,7 @@ function LabelManager({
   return (
     <Card>
       <h2 className="text-xl font-semibold">{title}</h2>
-      <p className="mt-1 text-sm text-cocoa-700/80">{help}</p>
+      <p className="mt-1 text-sm text-cocoa-500">{help}</p>
 
       <form onSubmit={handleAdd} className="mt-4 flex gap-2">
         <input
@@ -88,7 +88,7 @@ function LabelManager({
       {loading ? (
         <Loading />
       ) : labels.length === 0 ? (
-        <p className="mt-6 text-sm text-cocoa-700/70">None yet.</p>
+        <p className="mt-6 text-sm text-cocoa-500">None yet.</p>
       ) : (
         <ul className="mt-4 divide-y divide-cream-200">
           {labels.map((label) => (

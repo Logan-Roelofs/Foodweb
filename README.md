@@ -105,7 +105,26 @@ To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2
 - **Contributors can edit or delete only their own dishes**, and only while the potluck is open (link on and not locked). Dishes must use one of the potluck's courses, and links must start with `http(s)://`.
 - **Locking** finalizes the menu. It stays visible, but nobody can add, edit, or remove dishes, except the admin, who can always remove a dish.
 - **Add to my recipes** (admin only, on the potluck page) copies a dish into your recipe box as a draft, crediting the contributor in the notes.
+- **Up to 10 dishes per person per potluck.** Dish IDs must be `<uid>_<0-9>`, which the rules enforce, so nobody can flood a potluck even by bypassing the app.
 - Locally, `npm run seed` creates a sample potluck and a guest account, **Jamie Guest**, so you can try contributing as a non-admin.
+
+---
+
+## Link previews
+
+When a Foodweb link is shared in a text or chat, apps show the card in `public/og-image.png` (1200×630) with the title "Foodweb". The tags are in `index.html`. Preview crawlers don't run JavaScript, so every page (including menus and potlucks) shares this one card. Making them page-specific would need server-side rendering via a Cloud Function.
+
+The image URL is built from `VITE_FIREBASE_PROJECT_ID` (`https://<project-id>.web.app/og-image.png`). If you add a custom domain later, change that `og:image` line in `index.html` to use it.
+
+## Optional: App Check (only if you ever get spam)
+
+[App Check](https://firebase.google.com/docs/app-check) makes Firestore reject requests that don't come from your real site. It isn't set up by default, because the per-person dish cap, locking, and admin removal already cover a personal site, and App Check adds Google's reCAPTCHA script to every page.
+
+If you need it later:
+1. In Google Cloud, create a **reCAPTCHA Enterprise** site key for your domains (`<project-id>.web.app`, `<project-id>.firebaseapp.com`).
+2. In the Firebase console, go to **App Check**, then **Apps**, and register the web app with that key.
+3. Initialize App Check in `src/lib/firebase.ts`, right after `initializeApp`, using `initializeAppCheck` with a `ReCaptchaEnterpriseProvider`.
+4. Deploy, watch the App Check **metrics** for a few days to confirm real traffic is verified, and only then click **Enforce** for Cloud Firestore.
 
 ---
 

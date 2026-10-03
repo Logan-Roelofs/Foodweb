@@ -1,6 +1,13 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { addEntry, deleteEntry, updateEntry, usePotluck, type EntryInput } from '../lib/community'
+import {
+  MAX_DISHES_PER_PERSON,
+  addEntry,
+  deleteEntry,
+  updateEntry,
+  usePotluck,
+  type EntryInput,
+} from '../lib/community'
 import { formatMenuDate } from '../lib/menus'
 import { useAuth } from '../lib/auth'
 import { useTitle } from '../lib/format'
@@ -65,7 +72,7 @@ export function PotluckPage() {
         {menu.description && (
           <p className="mx-auto mt-4 max-w-xl whitespace-pre-line text-cocoa-700">{menu.description}</p>
         )}
-        <p className="mt-4 text-sm text-cocoa-700/70">
+        <p className="mt-4 text-sm text-cocoa-500">
           {entries.length === 0
             ? 'No dishes yet. Be the first!'
             : `${entries.length} ${entries.length === 1 ? 'dish' : 'dishes'} from ${people} ${
@@ -105,7 +112,7 @@ export function PotluckPage() {
           <section key={course}>
             <h2 className="flex items-baseline justify-between border-b border-cream-200 pb-2 text-2xl font-semibold">
               {course}
-              <span className="font-sans text-sm font-normal text-cocoa-700/70">
+              <span className="font-sans text-sm font-normal text-cocoa-500">
                 {items.length === 0 ? 'Nothing yet' : `${items.length} ${items.length === 1 ? 'dish' : 'dishes'}`}
               </span>
             </h2>
@@ -132,7 +139,7 @@ export function PotluckPage() {
       </div>
 
       {user && (
-        <p className="text-center text-xs text-cocoa-700/60">
+        <p className="text-center text-xs text-cocoa-500">
           Signed in as {user.email} ·{' '}
           <button type="button" className="underline" onClick={signOut}>
             Sign out
@@ -242,6 +249,15 @@ function AddDish({ menu, entries }: { menu: CommunityMenu; entries: Entry[] }) {
   const { user } = useAuth()
   const [key, setKey] = useState(0)
   const [added, setAdded] = useState<string | null>(null)
+  const mine = entries.filter((e) => e.uid === user!.uid).length
+
+  if (mine >= MAX_DISHES_PER_PERSON) {
+    return (
+      <Card className="text-center text-cocoa-700">
+        You've reached the limit of {MAX_DISHES_PER_PERSON} dishes per person. Remove one to add another.
+      </Card>
+    )
+  }
 
   return (
     <Card>
@@ -253,7 +269,7 @@ function AddDish({ menu, entries }: { menu: CommunityMenu; entries: Entry[] }) {
         others={entries}
         submitLabel="Add to the menu"
         onSubmit={async (input) => {
-          await addEntry(menu.id, user!.uid, input)
+          await addEntry(menu.id, user!.uid, input, entries)
           rememberName(input.displayName)
           setAdded(input.dishName)
           setKey((k) => k + 1)

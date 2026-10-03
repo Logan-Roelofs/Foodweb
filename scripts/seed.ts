@@ -223,7 +223,7 @@ async function seedPotluck() {
     ...data,
   })
   batch.set(
-    db.doc(`communityMenus/${potluckId}/entries/sample-entry-1`),
+    db.doc(`communityMenus/${potluckId}/entries/${guestUid}_0`),
     entry(guestUid, {
       displayName: 'Cousin Jamie',
       course: 'Sides',
@@ -232,7 +232,7 @@ async function seedPotluck() {
     }),
   )
   batch.set(
-    db.doc(`communityMenus/${potluckId}/entries/sample-entry-2`),
+    db.doc(`communityMenus/${potluckId}/entries/sample-guest-sarah_0`),
     entry('sample-guest-sarah', {
       displayName: 'Aunt Sarah',
       course: 'Desserts',

@@ -55,6 +55,9 @@ async function seed(menu: Record<string, unknown> = {}) {
 }
 
 const entries = (db: ReturnType<typeof anon>) => collection(db, 'communityMenus/p/entries')
+/** Entry IDs are '<uid>_<slot>'. */
+const slot = (db: ReturnType<typeof anon>, uid: string, n = 0) =>
+  doc(db, `communityMenus/p/entries/${uid}_${n}`)
 
 describe('potluck: viewing', () => {
   it('anyone with the link can see the menu and what has been claimed', async () => {
@@ -83,24 +86,25 @@ describe('potluck: adding dishes', () => {
   beforeEach(() => seed())
 
   it('a signed-in guest can add a dish under their own name', async () => {
-    await assertSucceeds(addDoc(entries(other()), validEntry(OTHER_UID)))
+    await assertSucceeds(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID)))
   })
 
   it('accepts an optional link and recipe text', async () => {
     await assertSucceeds(
-      addDoc(
-        entries(other()),
+      setDoc(
+        slot(other(), OTHER_UID),
         validEntry(OTHER_UID, { link: 'https://example.com/pie', recipeText: 'Mix and bake.' }),
       ),
     )
   })
 
   it('visitors must sign in to add a dish', async () => {
-    await assertFails(addDoc(entries(anon()), validEntry('nobody')))
+    await assertFails(setDoc(slot(anon(), 'nobody'), validEntry('nobody')))
   })
 
   it('cannot add a dish on behalf of someone else', async () => {
-    await assertFails(addDoc(entries(other()), validEntry(USER_UID)))
+    await assertFails(setDoc(slot(other(), USER_UID), validEntry(USER_UID)))
+    await assertFails(setDoc(slot(other(), OTHER_UID), validEntry(USER_UID)))
   })
 
   it.each([
@@ -114,17 +118,28 @@ describe('potluck: adding dishes', () => {
     ['extra fields', { approved: true }],
     ['a client-chosen createdAt', { createdAt: Timestamp.fromDate(new Date(2000, 0, 1)) }],
   ])('rejects %s', async (_label, overrides) => {
-    await assertFails(addDoc(entries(other()), validEntry(OTHER_UID, overrides)))
+    await assertFails(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID, overrides)))
+  })
+
+  it('caps each person at 10 dishes (slots 0-9)', async () => {
+    await assertSucceeds(setDoc(slot(other(), OTHER_UID, 9), validEntry(OTHER_UID)))
+    await assertFails(setDoc(slot(other(), OTHER_UID, 10), validEntry(OTHER_UID)))
+    await assertFails(addDoc(entries(other()), validEntry(OTHER_UID)))
+  })
+
+  it('cannot overwrite an existing dish by reusing its slot', async () => {
+    await assertSucceeds(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID)))
+    await assertFails(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID, { dishName: 'Again' })))
   })
 
   it('nobody can add dishes once the menu is locked', async () => {
     await seed({ locked: true })
-    await assertFails(addDoc(entries(other()), validEntry(OTHER_UID)))
+    await assertFails(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID)))
   })
 
   it('nobody can add dishes to a turned-off menu', async () => {
     await seed({ active: false })
-    await assertFails(addDoc(entries(other()), validEntry(OTHER_UID)))
+    await assertFails(setDoc(slot(other(), OTHER_UID), validEntry(OTHER_UID)))
   })
 })
 

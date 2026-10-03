@@ -29,7 +29,7 @@ export function PotlucksPage() {
   return (
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-cocoa-700/80">
+        <p className="text-sm text-cocoa-500">
           Shared sign-up menus. Guests sign in with Google to say what they're bringing.
         </p>
         <Link to="/admin/potlucks/new" className={`${buttonClass('primary')} shrink-0`}>
@@ -48,7 +48,7 @@ export function PotlucksPage() {
             <li key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <Link to={`/admin/potlucks/${m.id}`} className="min-w-0 flex-1 hover:text-terracotta-600">
                 <div className="truncate font-semibold">{m.title}</div>
-                <div className="text-xs text-cocoa-700/70">
+                <div className="text-xs text-cocoa-500">
                   {m.eventDate ? formatMenuDate(m.eventDate) : 'No date'}
                 </div>
               </Link>

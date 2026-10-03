@@ -28,7 +28,7 @@ export function MenusPage() {
   return (
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-cocoa-700/80">
+        <p className="text-sm text-cocoa-500">
           Private menus you share by link. They never appear anywhere on the public site.
         </p>
         <Link to="/admin/menus/new" className={`${buttonClass('primary')} shrink-0`}>
@@ -49,7 +49,7 @@ export function MenusPage() {
               <li key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <Link to={`/admin/menus/${m.id}`} className="min-w-0 flex-1 hover:text-terracotta-600">
                   <div className="truncate font-semibold">{m.title}</div>
-                  <div className="text-xs text-cocoa-700/70">
+                  <div className="text-xs text-cocoa-500">
                     {m.date ? formatMenuDate(m.date) : 'No date'} · {count}{' '}
                     {count === 1 ? 'dish' : 'dishes'}
                   </div>

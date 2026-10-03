@@ -134,7 +134,7 @@ function PotluckEditor({ potluckId }: { potluckId: string | undefined }) {
           {existing.active ? (
             <ShareLink url={potluckUrl(id)} />
           ) : (
-            <p className="text-sm text-cocoa-700/80">
+            <p className="text-sm text-cocoa-500">
               The link is off. Anyone who opens it sees "This menu isn't available."
             </p>
           )}
@@ -157,7 +157,7 @@ function PotluckEditor({ potluckId }: { potluckId: string | undefined }) {
               {existing.locked ? 'Reopen sign-ups' : 'Lock menu (finalize)'}
             </Button>
           </div>
-          <p className="text-xs text-cocoa-700/70">
+          <p className="text-xs text-cocoa-500">
             Locking keeps the menu visible but stops anyone adding, editing, or removing dishes. You can
             still remove dishes from the sign-up page.
           </p>
@@ -197,7 +197,7 @@ function PotluckEditor({ potluckId }: { potluckId: string | undefined }) {
       <Card className="space-y-3">
         <div>
           <h3 className="text-xl font-semibold">Courses</h3>
-          <p className="mt-1 text-sm text-cocoa-700/80">Guests pick one of these for each dish.</p>
+          <p className="mt-1 text-sm text-cocoa-500">Guests pick one of these for each dish.</p>
         </div>
         <ul className="space-y-2">
           {courses.map((course, i) => (

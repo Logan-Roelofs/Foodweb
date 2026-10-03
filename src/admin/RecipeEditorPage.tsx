@@ -246,7 +246,7 @@ function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
             {photoPreview ? (
               <img src={photoPreview} alt="" className="h-32 w-48 rounded-2xl object-cover" />
             ) : (
-              <div className="flex h-32 w-48 items-center justify-center rounded-2xl bg-cream-200 text-sm text-cocoa-700/60">
+              <div className="flex h-32 w-48 items-center justify-center rounded-2xl bg-cream-200 text-sm text-cocoa-500">
                 No photo
               </div>
             )}
@@ -273,7 +273,7 @@ function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
                   Remove photo
                 </button>
               )}
-              <span className="text-xs text-cocoa-700/60">Resized and compressed before upload.</span>
+              <span className="text-xs text-cocoa-500">Resized and compressed before upload.</span>
             </div>
           </div>
         </div>
@@ -368,7 +368,7 @@ function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
         <div>
           <span className="mb-2 block text-sm font-semibold text-cocoa-700">Tags</span>
           {tags.length === 0 ? (
-            <p className="text-sm text-cocoa-700/70">
+            <p className="text-sm text-cocoa-500">
               No tags yet.{' '}
               <Link to="/admin/labels" className="underline">
                 Create some

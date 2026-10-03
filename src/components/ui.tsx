@@ -37,7 +37,7 @@ export function Field({
     <label className="block">
       <span className="mb-1 block text-sm font-semibold text-cocoa-700">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-cocoa-700/70">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-cocoa-500">{hint}</span>}
     </label>
   )
 }
@@ -52,7 +52,7 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 
 export function Loading({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-3 py-16 text-cocoa-700/70" role="status">
+    <div className="flex items-center justify-center gap-3 py-16 text-cocoa-500" role="status">
       <span className="h-5 w-5 animate-spin rounded-full border-2 border-terracotta-500 border-t-transparent" />
       {label}
     </div>
@@ -70,7 +70,7 @@ export function ErrorNote({ children }: { children: ReactNode }) {
 export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'green' | 'amber' }) {
   const tones = {
     neutral: 'bg-cream-200 text-cocoa-700',
-    green: 'bg-olive-600/15 text-olive-600',
+    green: 'bg-olive-600/15 text-olive-700',
     amber: 'bg-terracotta-500/15 text-terracotta-700',
   }
   return (

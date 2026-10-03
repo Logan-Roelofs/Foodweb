@@ -6,9 +6,12 @@ import type { Recipe } from '../types'
 export function RecipePhoto({
   recipe,
   className = '',
+  alt = '',
 }: {
   recipe: Pick<Recipe, 'title' | 'photoUrl'>
   className?: string
+  /** Leave empty when the title is shown right next to the photo. */
+  alt?: string
 }) {
   // Falls back to the placeholder if the photo is gone (e.g. replaced after a
   // menu copied this recipe).
@@ -17,7 +20,7 @@ export function RecipePhoto({
     return (
       <img
         src={recipe.photoUrl}
-        alt=""
+        alt={alt}
         loading="lazy"
         onError={() => setBroken(true)}
         className={`h-full w-full object-cover ${className}`}
@@ -68,7 +71,7 @@ export function RecipeCard({
         {large && recipe.description && (
           <p className="mt-2 line-clamp-2 text-cocoa-700">{recipe.description}</p>
         )}
-        {total && <div className="mt-2 text-sm text-cocoa-700/70">{total}</div>}
+        {total && <div className="mt-2 text-sm text-cocoa-500">{total}</div>}
       </div>
     </Link>
   )

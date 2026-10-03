@@ -168,7 +168,7 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
           {active ? (
             <ShareLink url={menuUrl(id)} />
           ) : (
-            <p className="text-sm text-cocoa-700/80">
+            <p className="text-sm text-cocoa-500">
               The link is off. Anyone who opens it sees "This menu isn't available."
             </p>
           )}
@@ -208,7 +208,7 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
       <Card className="space-y-6">
         <div>
           <h3 className="text-xl font-semibold">Courses</h3>
-          <p className="mt-1 text-sm text-cocoa-700/80">
+          <p className="mt-1 text-sm text-cocoa-500">
             Drafts are fine: each recipe is copied into the menu when you save, so it stays private
             everywhere else. Save again after editing a recipe to refresh the copy.
           </p>
