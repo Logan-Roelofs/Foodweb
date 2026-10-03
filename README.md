@@ -147,5 +147,5 @@ To check that PR previews work, open a pull request. A bot comment with the prev
 
 ### Troubleshooting deploys
 - **`Permission denied` / `403` in the deploy step:** the error message names the missing permission. Add the matching role to the `github-deployer` service account (step 7) and re-run the workflow.
-- **`Storage has not been set up`:** finish step 6 first.
+- **`Storage has not been set up`:** first make sure step 6 is finished and the `VITE_FIREBASE_STORAGE_BUCKET` variable is right. The live workflow names the bucket explicitly to avoid a misleading version of this error.
 - **`auth/unauthorized-domain` when signing in:** go to **Authentication**, then **Settings**, then **Authorized domains**, and add the domain you're on. `<project-id>.web.app` and `<project-id>.firebaseapp.com` are already there by default.

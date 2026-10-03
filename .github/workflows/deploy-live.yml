@@ -54,10 +54,28 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
+      # Name the Storage bucket explicitly so the CLI skips its "default bucket"
+      # lookup, which can fail with a misleading "Storage has not been set up"
+      # error. firebase.json itself stays bucket-free so the emulators keep
+      # working with the demo project.
+      - name: Write deploy config with explicit Storage bucket
+        if: vars.FIREBASE_PROJECT_ID != ''
+        env:
+          BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            if (!process.env.BUCKET) { console.error('VITE_FIREBASE_STORAGE_BUCKET repo variable is empty'); process.exit(1); }
+            const c = JSON.parse(fs.readFileSync('firebase.json', 'utf8'));
+            c.storage = [{ bucket: process.env.BUCKET, rules: c.storage.rules }];
+            fs.writeFileSync('firebase.deploy.json', JSON.stringify(c, null, 2));
+          "
+
       - name: Deploy hosting + Firestore rules/indexes + Storage rules
         if: vars.FIREBASE_PROJECT_ID != ''
         run: >
           npx firebase deploy
+          --config firebase.deploy.json
           --only hosting,firestore,storage
           --project "${{ vars.FIREBASE_PROJECT_ID }}"
           --non-interactive

@@ -13,3 +13,6 @@ emulator-data/
 # Never commit service account keys
 *-service-account*.json
 service-account*.json
+
+# Generated in CI by deploy-live.yml
+firebase.deploy.json
