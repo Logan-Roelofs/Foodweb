@@ -16,3 +16,6 @@ service-account*.json
 
 # Generated in CI by deploy-live.yml
 firebase.deploy.json
+
+# Emulator auto-exports
+firebase-export-*/
