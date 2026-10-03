@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
-import { connectStorageEmulator, getStorage } from 'firebase/storage'
 
 const env = import.meta.env
 
@@ -12,7 +11,7 @@ const projectId = useEmulators ? 'demo-foodweb' : env.VITE_FIREBASE_PROJECT_ID
 
 export const app = initializeApp({
   apiKey: env.VITE_FIREBASE_API_KEY || 'demo-api-key',
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+  authDomain: useEmulators ? `${projectId}.firebaseapp.com` : env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId,
   storageBucket: useEmulators ? `${projectId}.appspot.com` : env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
@@ -21,12 +20,10 @@ export const app = initializeApp({
 
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-export const storage = getStorage(app)
 
 if (useEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
-  connectStorageEmulator(storage, '127.0.0.1', 9199)
 }
 
 /** UI-only admin check. Real enforcement is in the security rules. */

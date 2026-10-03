@@ -1,10 +1,23 @@
 rules_version = '2';
 
-// Phase 1: everything is locked down.
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+
+    // Admin allowlist (Firebase Auth UIDs). Keep in sync with firestore.rules;
+    // a test fails if the two lists differ.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in ['ADMIN_UID_NOT_SET'];
     }
+
+    // Recipe photos. Compressed in the browser before upload, so 2 MB is generous.
+    match /recipes/{recipeId}/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow delete: if isAdmin();
+    }
+
+    // Everything else is denied by default.
   }
 }

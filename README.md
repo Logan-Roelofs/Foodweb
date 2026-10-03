@@ -42,6 +42,38 @@ npm run dev
 
 The emulators run as a `demo-foodweb` project, so nothing you do locally can touch production. Data is saved to `./emulator-data` when you stop the emulators with Ctrl+C, and it's reloaded the next time you start them.
 
+**First time (or to reset sample data):** with the emulators running, open a third terminal and run:
+
+```bash
+npm run seed
+```
+
+This creates a fake **Foodweb Admin** Google account whose user ID matches the admin allowlist in `firestore.rules`, along with sample tags, categories and recipes. Go to http://localhost:5173/admin, click **Sign in with Google**, and pick **Foodweb Admin** in the emulator's popup. Choose **Add new account** instead to see what a non-admin sees.
+
+`VITE_ADMIN_UIDS` in your `.env` must match the UID in the rules files, or the dashboard won't show for the seeded admin.
+
+---
+
+## Admin access
+
+The admin allowlist lives in **both** `firestore.rules` and `storage.rules`:
+
+```
+function isAdmin() {
+  return request.auth != null && request.auth.uid in ['<your-uid>'];
+}
+```
+
+These rules are what actually protect your data. `VITE_ADMIN_UIDS` only decides whether the app shows the dashboard. A user ID isn't secret, so it's fine to commit.
+
+**To make yourself admin:**
+1. Go to `https://<project-id>.web.app/admin` and sign in with your Google account. You'll see **Not authorized** with your user ID. Click **Copy user ID**.
+2. In `firestore.rules` **and** `storage.rules`, replace `ADMIN_UID_NOT_SET` with your user ID. A test fails if the two files don't match.
+3. Set `VITE_ADMIN_UIDS` to the same ID in your local `.env` and in GitHub (**Settings**, then **Secrets and variables**, then **Actions**, then the **Variables** tab).
+4. Commit and push. When the deploy finishes, reload `/admin`.
+
+To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2']`, and comma-separate them in `VITE_ADMIN_UIDS`.
+
 ### Tests
 
 ```bash
@@ -137,7 +169,7 @@ Now delete the JSON file from your computer.
 | `VITE_FIREBASE_STORAGE_BUCKET` | `storageBucket` |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | `messagingSenderId` |
 | `VITE_FIREBASE_APP_ID` | `appId` |
-| `VITE_ADMIN_UIDS` | Your user ID. Leave this out until Phase 2. |
+| `VITE_ADMIN_UIDS` | Your user ID (see "Admin access" above). You can add it later. |
 | `FIREBASE_PROJECT_ID` | `projectId`. **Add this one last**, because it turns deploys on. |
 
 #### 9. Deploy

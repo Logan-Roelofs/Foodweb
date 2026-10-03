@@ -1,11 +1,87 @@
 rules_version = '2';
 
-// Phase 1: everything is locked down. Each later phase opens up exactly
-// what it needs, with tests in tests/rules/.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+
+    // ---------- Helpers ----------
+
+    // Admin allowlist (Firebase Auth UIDs). Keep in sync with storage.rules;
+    // a test fails if the two lists differ.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in ['ADMIN_UID_NOT_SET'];
     }
+
+    function isStr(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    function isInt(v, min, max) {
+      return v is int && v >= min && v <= max;
+    }
+
+    function isList(v, maxItems) {
+      return v is list && v.size() <= maxItems;
+    }
+
+    // ---------- Recipes ----------
+
+    function isValidRecipe(recipeId, d) {
+      return d.keys().hasOnly([
+          'title', 'description', 'photoPath', 'photoUrl', 'prepMinutes', 'cookMinutes',
+          'servings', 'ingredients', 'steps', 'tags', 'categoryId', 'notes', 'status',
+          'featured', 'createdAt', 'updatedAt', 'publishedAt'])
+        && d.keys().hasAll([
+          'title', 'description', 'photoPath', 'photoUrl', 'prepMinutes', 'cookMinutes',
+          'servings', 'ingredients', 'steps', 'tags', 'categoryId', 'notes', 'status',
+          'featured', 'createdAt', 'updatedAt', 'publishedAt'])
+        && isStr(d.title, 1, 120)
+        && isStr(d.description, 0, 2000)
+        && (d.photoPath == null || (d.photoPath is string && d.photoPath.matches('recipes/' + recipeId + '/[^/]{1,100}')))
+        && (d.photoUrl == null || isStr(d.photoUrl, 1, 2000))
+        && isInt(d.prepMinutes, 0, 10000)
+        && isInt(d.cookMinutes, 0, 10000)
+        && isInt(d.servings, 1, 100)
+        && isList(d.ingredients, 150)
+        && isList(d.steps, 100)
+        && isList(d.tags, 30)
+        && (d.categoryId == null || isStr(d.categoryId, 1, 100))
+        && isStr(d.notes, 0, 5000)
+        && d.status in ['draft', 'published']
+        && d.featured is bool
+        && d.updatedAt == request.time
+        && (d.publishedAt == null || d.publishedAt is timestamp);
+    }
+
+    match /recipes/{recipeId} {
+      // Public queries must filter on status == 'published'.
+      allow read: if isAdmin() || resource.data.status == 'published';
+      allow create: if isAdmin()
+        && isValidRecipe(recipeId, request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && isValidRecipe(recipeId, request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
+    }
+
+    // ---------- Tags & categories ----------
+
+    function isValidLabel(d) {
+      return d.keys().hasOnly(['name']) && d.keys().hasAll(['name']) && isStr(d.name, 1, 40);
+    }
+
+    match /tags/{tagId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidLabel(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidLabel(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Everything else is denied by default.
   }
 }
