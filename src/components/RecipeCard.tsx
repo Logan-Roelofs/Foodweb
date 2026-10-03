@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { formatMinutes } from '../lib/format'
 import type { Recipe } from '../types'
@@ -9,12 +10,16 @@ export function RecipePhoto({
   recipe: Pick<Recipe, 'title' | 'photoUrl'>
   className?: string
 }) {
-  if (recipe.photoUrl) {
+  // Falls back to the placeholder if the photo is gone (e.g. replaced after a
+  // menu copied this recipe).
+  const [broken, setBroken] = useState(false)
+  if (recipe.photoUrl && !broken) {
     return (
       <img
         src={recipe.photoUrl}
         alt=""
         loading="lazy"
+        onError={() => setBroken(true)}
         className={`h-full w-full object-cover ${className}`}
       />
     )

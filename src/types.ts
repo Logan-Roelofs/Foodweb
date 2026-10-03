@@ -34,3 +34,47 @@ export interface Label {
   id: string
   name: string
 }
+
+// ---------- Curated menus ----------
+
+export const MENU_COURSES = ['appetizer', 'main', 'dessert', 'drinks'] as const
+export type MenuCourse = (typeof MENU_COURSES)[number]
+
+/** Shape of a document in the `menus` collection. */
+export interface MenuDoc {
+  title: string
+  /** "YYYY-MM-DD", or null for no date. */
+  date: string | null
+  message: string
+  /** Recipe IDs per course, in display order. */
+  courses: Record<MenuCourse, string[]>
+  /** False once the link is revoked. */
+  active: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface Menu extends MenuDoc {
+  id: string
+}
+
+/**
+ * A copy of a recipe stored with the menu (menus/{menuId}/recipes/{recipeId}),
+ * so menus can include drafts without making them public.
+ */
+export type RecipeSnapshot = Pick<
+  RecipeDoc,
+  | 'title'
+  | 'description'
+  | 'photoUrl'
+  | 'prepMinutes'
+  | 'cookMinutes'
+  | 'servings'
+  | 'ingredients'
+  | 'steps'
+  | 'notes'
+>
+
+export interface MenuRecipe extends RecipeSnapshot {
+  id: string
+}

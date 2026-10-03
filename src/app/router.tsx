@@ -4,6 +4,7 @@ import { HomePage } from '../pages/HomePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { RecipesPage } from '../pages/RecipesPage'
 import { RecipePage } from '../pages/RecipePage'
+import { MenuPage, MenuRecipePage } from '../pages/MenuPage'
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,8 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'recipes', element: <RecipesPage /> },
       { path: 'recipes/:recipeId', element: <RecipePage /> },
+      { path: 'menu/:menuId', element: <MenuPage /> },
+      { path: 'menu/:menuId/:recipeId', element: <MenuRecipePage /> },
       {
         // The admin area is loaded on demand so visitors never download it.
         path: 'admin',
@@ -33,6 +36,22 @@ export const router = createBrowserRouter([
             path: 'recipes/:recipeId',
             lazy: async () => ({
               Component: (await import('../admin/RecipeEditorPage')).RecipeEditorPage,
+            }),
+          },
+          {
+            path: 'menus',
+            lazy: async () => ({ Component: (await import('../admin/MenusPage')).MenusPage }),
+          },
+          {
+            path: 'menus/new',
+            lazy: async () => ({
+              Component: (await import('../admin/MenuEditorPage')).MenuEditorPage,
+            }),
+          },
+          {
+            path: 'menus/:menuId',
+            lazy: async () => ({
+              Component: (await import('../admin/MenuEditorPage')).MenuEditorPage,
             }),
           },
           {

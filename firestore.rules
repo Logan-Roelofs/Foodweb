@@ -82,6 +82,69 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- Curated menus (unlisted, shared by link) ----------
+
+    function isValidMenu(d) {
+      return d.keys().hasOnly(['title', 'date', 'message', 'courses', 'active', 'createdAt', 'updatedAt'])
+        && d.keys().hasAll(['title', 'date', 'message', 'courses', 'active', 'createdAt', 'updatedAt'])
+        && isStr(d.title, 1, 120)
+        && (d.date == null || (d.date is string && d.date.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')))
+        && isStr(d.message, 0, 2000)
+        && d.courses is map
+        && d.courses.keys().hasOnly(['appetizer', 'main', 'dessert', 'drinks'])
+        && d.courses.keys().hasAll(['appetizer', 'main', 'dessert', 'drinks'])
+        && isList(d.courses.appetizer, 20)
+        && isList(d.courses.main, 20)
+        && isList(d.courses.dessert, 20)
+        && isList(d.courses.drinks, 20)
+        && d.active is bool
+        && d.updatedAt == request.time;
+    }
+
+    // A copy of a recipe stored with the menu, so drafts can be shared
+    // through a menu without becoming public.
+    function isValidRecipeSnapshot(d) {
+      return d.keys().hasOnly([
+          'title', 'description', 'photoUrl', 'prepMinutes', 'cookMinutes', 'servings',
+          'ingredients', 'steps', 'notes'])
+        && d.keys().hasAll([
+          'title', 'description', 'photoUrl', 'prepMinutes', 'cookMinutes', 'servings',
+          'ingredients', 'steps', 'notes'])
+        && isStr(d.title, 1, 120)
+        && isStr(d.description, 0, 2000)
+        && (d.photoUrl == null || isStr(d.photoUrl, 1, 2000))
+        && isInt(d.prepMinutes, 0, 10000)
+        && isInt(d.cookMinutes, 0, 10000)
+        && isInt(d.servings, 1, 100)
+        && isList(d.ingredients, 150)
+        && isList(d.steps, 100)
+        && isStr(d.notes, 0, 5000);
+    }
+
+    function menuIsActive(menuId) {
+      return get(/databases/$(database)/documents/menus/$(menuId)).data.active == true;
+    }
+
+    match /menus/{menuId} {
+      // Anyone with the link can open an active menu, but only the admin can
+      // list menus, so links can't be discovered.
+      allow get: if isAdmin() || resource.data.active == true;
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && isValidMenu(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && isValidMenu(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
+
+      match /recipes/{recipeId} {
+        allow read: if isAdmin() || menuIsActive(menuId);
+        allow create, update: if isAdmin() && isValidRecipeSnapshot(request.resource.data);
+        allow delete: if isAdmin();
+      }
+    }
+
     // Everything else is denied by default.
   }
 }

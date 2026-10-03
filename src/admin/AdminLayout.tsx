@@ -28,6 +28,9 @@ export function AdminLayout() {
           <NavLink to="/admin" className={() => tabClass(onRecipes)}>
             Recipes
           </NavLink>
+          <NavLink to="/admin/menus" className={({ isActive }) => tabClass(isActive)}>
+            Menus
+          </NavLink>
           <NavLink to="/admin/labels" className={({ isActive }) => tabClass(isActive)}>
             Tags & categories
           </NavLink>

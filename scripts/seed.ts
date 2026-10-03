@@ -143,6 +143,44 @@ async function seedData() {
   console.log('✔ Sample tags, categories, and 3 recipes (2 published, 1 draft)')
 }
 
+async function seedMenu() {
+  // A date-night menu that includes the draft soup, copied in the same
+  // way the app does it.
+  const menuId = 'sampleDateNightMenu01'
+  const batch = db.batch()
+  batch.set(db.doc(`menus/${menuId}`), {
+    title: 'Valentine’s Date Night',
+    date: '2027-02-14',
+    message: 'Dinner is on me tonight. Wear something cozy.',
+    courses: {
+      appetizer: ['sample-draft-soup'],
+      main: ['sample-weeknight-pasta'],
+      dessert: ['sample-apple-pie'],
+      drinks: [],
+    },
+    active: true,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  })
+  for (const id of ['sample-draft-soup', 'sample-weeknight-pasta', 'sample-apple-pie']) {
+    const r = (await db.doc(`recipes/${id}`).get()).data()!
+    batch.set(db.doc(`menus/${menuId}/recipes/${id}`), {
+      title: r.title,
+      description: r.description,
+      photoUrl: r.photoUrl,
+      prepMinutes: r.prepMinutes,
+      cookMinutes: r.cookMinutes,
+      servings: r.servings,
+      ingredients: r.ingredients,
+      steps: r.steps,
+      notes: r.notes,
+    })
+  }
+  await batch.commit()
+  console.log(`✔ Sample menu at http://localhost:5173/menu/${menuId}`)
+}
+
 await seedAdmin()
 await seedData()
+await seedMenu()
 console.log('\nDone. Sign in at http://localhost:5173/admin and pick "Foodweb Admin".')

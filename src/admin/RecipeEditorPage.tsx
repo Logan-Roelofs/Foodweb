@@ -117,8 +117,13 @@ function toInput(f: FormState): { input?: RecipeInput; error?: string } {
   }
 }
 
+/** Remount per recipe so switching between new/edit or two recipes never mixes state. */
 export function RecipeEditorPage() {
   const { recipeId } = useParams()
+  return <RecipeEditor key={recipeId ?? 'new'} recipeId={recipeId} />
+}
+
+function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
   const isNew = !recipeId
   const navigate = useNavigate()
   const { labels: tags } = useLabels('tags')

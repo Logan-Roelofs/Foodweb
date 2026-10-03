@@ -50,3 +50,33 @@ export function validRecipe(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
+
+/** A menu document that passes validation when written by the admin. */
+export function validMenu(overrides: Record<string, unknown> = {}) {
+  return {
+    title: 'Date Night',
+    date: '2026-02-14',
+    message: 'Can’t wait to cook for you.',
+    courses: { appetizer: [], main: ['r1'], dessert: ['r2'], drinks: [] },
+    active: true,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...overrides,
+  }
+}
+
+/** A recipe copy stored under a menu. */
+export function validSnapshot(overrides: Record<string, unknown> = {}) {
+  return {
+    title: 'Secret Soup',
+    description: '',
+    photoUrl: null,
+    prepMinutes: 10,
+    cookMinutes: 20,
+    servings: 2,
+    ingredients: ['1 onion'],
+    steps: ['Cook it.'],
+    notes: '',
+    ...overrides,
+  }
+}
