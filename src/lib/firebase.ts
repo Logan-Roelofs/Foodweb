@@ -26,8 +26,5 @@ if (useEmulators) {
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
 }
 
-/** UI-only admin check. Real enforcement is in the security rules. */
-export const adminUids = (env.VITE_ADMIN_UIDS ?? '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
+/** UI-only admin check, read from firestore.rules at build time (see vite.config.ts). */
+export const adminUids: string[] = __ADMIN_UIDS__

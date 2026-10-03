@@ -50,7 +50,18 @@ npm run seed
 
 This creates a fake **Foodweb Admin** Google account whose user ID matches the admin allowlist in `firestore.rules`, along with sample tags, categories and recipes. Go to http://localhost:5173/admin, click **Sign in with Google**, and pick **Foodweb Admin** in the emulator's popup. Choose **Add new account** instead to see what a non-admin sees.
 
-`VITE_ADMIN_UIDS` in your `.env` must match the UID in the rules files, or the dashboard won't show for the seeded admin.
+
+### Tests
+
+```bash
+npm run test:rules
+```
+
+This starts the Firestore and Storage emulators, runs the security-rules tests in `tests/rules/`, and shuts the emulators down. CI runs the same command before every deploy.
+
+```bash
+npm run typecheck
+```
 
 ---
 
@@ -64,27 +75,14 @@ function isAdmin() {
 }
 ```
 
-These rules are what actually protect your data. `VITE_ADMIN_UIDS` only decides whether the app shows the dashboard. A user ID isn't secret, so it's fine to commit.
+These rules are what actually protect your data. At build time the app reads the same list from `firestore.rules` to decide whether to show the dashboard, so there is nothing else to configure. A user ID isn't secret, so it's fine to commit.
 
 **To make yourself admin:**
 1. Go to `https://<project-id>.web.app/admin` and sign in with your Google account. You'll see **Not authorized** with your user ID. Click **Copy user ID**.
 2. In `firestore.rules` **and** `storage.rules`, put your user ID in the allowlist. A test fails if the two files don't match.
-3. Set `VITE_ADMIN_UIDS` to the same ID in your local `.env` and in GitHub (**Settings**, then **Secrets and variables**, then **Actions**, then the **Variables** tab).
-4. Commit and push. When the deploy finishes, reload `/admin`.
+3. Commit and push. When the deploy finishes, reload `/admin`.
 
-To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2']`, and comma-separate them in `VITE_ADMIN_UIDS`.
-
-### Tests
-
-```bash
-npm run test:rules
-```
-
-This starts the Firestore and Storage emulators, runs the security-rules tests in `tests/rules/`, and shuts the emulators down. CI runs the same command before every deploy.
-
-```bash
-npm run typecheck
-```
+To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2']`.
 
 ---
 
@@ -169,7 +167,6 @@ Now delete the JSON file from your computer.
 | `VITE_FIREBASE_STORAGE_BUCKET` | `storageBucket` |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | `messagingSenderId` |
 | `VITE_FIREBASE_APP_ID` | `appId` |
-| `VITE_ADMIN_UIDS` | Your user ID (see "Admin access" above). You can add it later. |
 | `FIREBASE_PROJECT_ID` | `projectId`. **Add this one last**, because it turns deploys on. |
 
 #### 9. Deploy
