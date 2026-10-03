@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
+import { useTitle } from '../lib/format'
 
 export function NotFoundPage() {
+  useTitle('Not found')
   return (
     <section className="text-center">
       <h1 className="text-3xl font-semibold">Nothing cooking here</h1>

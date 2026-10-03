@@ -31,6 +31,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Unit tests
+        run: npm run test:unit
+
       - name: Test security rules
         run: npm run test:rules
 

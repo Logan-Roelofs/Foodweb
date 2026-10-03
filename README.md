@@ -60,6 +60,12 @@ npm run test:rules
 This starts the Firestore and Storage emulators, runs the security-rules tests in `tests/rules/`, and shuts the emulators down. CI runs the same command before every deploy.
 
 ```bash
+npm run test:unit
+```
+
+This runs plain unit tests (e.g. the ingredient parser behind the servings scaler). It doesn't need the emulators.
+
+```bash
 npm run typecheck
 ```
 

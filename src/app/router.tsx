@@ -2,12 +2,16 @@ import { createBrowserRouter } from 'react-router'
 import { Layout } from './Layout'
 import { HomePage } from '../pages/HomePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { RecipesPage } from '../pages/RecipesPage'
+import { RecipePage } from '../pages/RecipePage'
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'recipes', element: <RecipesPage /> },
+      { path: 'recipes/:recipeId', element: <RecipePage /> },
       {
         // The admin area is loaded on demand so visitors never download it.
         path: 'admin',

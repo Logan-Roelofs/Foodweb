@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { getRecipe } from '../lib/recipes'
 import {
   deleteRecipe,
-  getRecipe,
   newRecipeId,
   saveRecipe,
   type PhotoChange,
   type RecipeInput,
-} from '../lib/recipes'
+} from '../lib/recipeAdmin'
 import { useLabels } from '../lib/taxonomy'
 import type { Recipe, RecipeStatus } from '../types'
 import {
@@ -205,7 +205,14 @@ export function RecipeEditorPage() {
         <Link to="/admin" className="text-sm text-terracotta-600 hover:underline">
           ← All recipes
         </Link>
-        <h2 className="text-2xl font-semibold">{isNew ? 'New recipe' : 'Edit recipe'}</h2>
+        <div className="flex items-center gap-4">
+          {existing && (
+            <Link to={`/recipes/${existing.id}`} className="text-sm text-cocoa-700 hover:underline">
+              View on site
+            </Link>
+          )}
+          <h2 className="text-2xl font-semibold">{isNew ? 'New recipe' : 'Edit recipe'}</h2>
+        </div>
       </div>
 
       <Card className="space-y-5">

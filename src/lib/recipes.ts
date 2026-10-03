@@ -1,30 +1,22 @@
+import { useEffect, useState } from 'react'
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
   orderBy,
   query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
+  where,
 } from 'firebase/firestore'
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { db } from './firebase'
-import { storage } from './storage'
-import { compressPhoto } from './image'
 import type { Recipe, RecipeDoc } from '../types'
 
-/** The fields the admin edits in the recipe form. */
-export type RecipeInput = Omit<
-  RecipeDoc,
-  'photoPath' | 'photoUrl' | 'createdAt' | 'updatedAt' | 'publishedAt'
->
+// Read-only recipe access, used by public pages. Writes live in
+// recipeAdmin.ts so visitors never download the upload code.
 
-const recipesCol = collection(db, 'recipes')
+export const recipesCol = collection(db, 'recipes')
 
-function fromSnap(id: string, data: unknown): Recipe {
+export function fromSnap(id: string, data: unknown): Recipe {
   return { id, ...(data as RecipeDoc) }
 }
 
@@ -45,72 +37,44 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
   }
 }
 
-/** A fresh ID, so a new recipe's photo can be uploaded before the doc exists. */
-export function newRecipeId(): string {
-  return doc(recipesCol).id
+const publishedTime = (r: Recipe) => r.publishedAt?.toMillis() ?? r.createdAt?.toMillis() ?? 0
+
+// Published recipes are fetched once per visit and shared by every public
+// page. A personal collection is small enough to filter in the browser.
+let publishedCache: Promise<Recipe[]> | null = null
+
+export function loadPublishedRecipes(): Promise<Recipe[]> {
+  publishedCache ??= getDocs(query(recipesCol, where('status', '==', 'published')))
+    .then((snap) =>
+      snap.docs.map((d) => fromSnap(d.id, d.data())).sort((a, b) => publishedTime(b) - publishedTime(a)),
+    )
+    .catch((err) => {
+      publishedCache = null
+      throw err
+    })
+  return publishedCache
 }
 
-export type PhotoChange = { kind: 'keep' } | { kind: 'remove' } | { kind: 'replace'; file: File }
-
-async function uploadPhoto(recipeId: string, file: File) {
-  const compressed = await compressPhoto(file)
-  const path = `recipes/${recipeId}/${Date.now()}.jpg`
-  const fileRef = ref(storage, path)
-  await uploadBytes(fileRef, compressed, { contentType: 'image/jpeg' })
-  return { path, url: await getDownloadURL(fileRef) }
+/** Call after the admin changes a recipe so public pages refetch. */
+export function invalidatePublishedRecipes() {
+  publishedCache = null
 }
 
-async function deletePhotoQuietly(path: string | null) {
-  if (!path) return
-  try {
-    await deleteObject(ref(storage, path))
-  } catch {
-    // Already gone or not reachable; an orphaned photo is harmless.
-  }
-}
+/** Published recipes, newest first. */
+export function usePublishedRecipes() {
+  const [recipes, setRecipes] = useState<Recipe[] | null>(null)
+  const [error, setError] = useState<unknown>(null)
 
-/** Creates (existing = null) or updates a recipe, handling the photo upload. */
-export async function saveRecipe(
-  id: string,
-  existing: Recipe | null,
-  input: RecipeInput,
-  photo: PhotoChange,
-): Promise<void> {
-  let photoPath = existing?.photoPath ?? null
-  let photoUrl = existing?.photoUrl ?? null
-  let uploadedPath: string | null = null
-
-  if (photo.kind === 'replace') {
-    const uploaded = await uploadPhoto(id, photo.file)
-    photoPath = uploadedPath = uploaded.path
-    photoUrl = uploaded.url
-  } else if (photo.kind === 'remove') {
-    photoPath = photoUrl = null
-  }
-
-  const becamePublished = input.status === 'published' && existing?.status !== 'published'
-  const publishedAt =
-    input.status === 'draft' ? null : becamePublished ? serverTimestamp() : existing!.publishedAt
-
-  const data = { ...input, photoPath, photoUrl, publishedAt, updatedAt: serverTimestamp() }
-
-  try {
-    if (existing) {
-      await updateDoc(doc(recipesCol, id), data)
-    } else {
-      await setDoc(doc(recipesCol, id), { ...data, createdAt: serverTimestamp() })
+  useEffect(() => {
+    let active = true
+    loadPublishedRecipes().then(
+      (r) => active && setRecipes(r),
+      (e) => active && setError(e),
+    )
+    return () => {
+      active = false
     }
-  } catch (err) {
-    await deletePhotoQuietly(uploadedPath)
-    throw err
-  }
+  }, [])
 
-  if (existing?.photoPath && existing.photoPath !== photoPath) {
-    await deletePhotoQuietly(existing.photoPath)
-  }
-}
-
-export async function deleteRecipe(recipe: Recipe): Promise<void> {
-  await deleteDoc(doc(recipesCol, recipe.id))
-  await deletePhotoQuietly(recipe.photoPath)
+  return { recipes, error }
 }

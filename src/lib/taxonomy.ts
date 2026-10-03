@@ -14,6 +14,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { invalidatePublishedRecipes } from './recipes'
 import type { Label } from '../types'
 
 export type LabelKind = 'tags' | 'categories'
@@ -62,4 +63,5 @@ export async function deleteLabel(kind: LabelKind, id: string): Promise<void> {
   }
   batch.delete(doc(db, kind, id))
   await batch.commit()
+  invalidatePublishedRecipes()
 }

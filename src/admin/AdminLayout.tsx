@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../lib/auth'
+import { useTitle } from '../lib/format'
 import { Button, Card, ErrorNote, Loading, errorMessage } from '../components/ui'
 
 /** Gate for everything under /admin: sign in, then admins only. */
 export function AdminLayout() {
   const { user, loading, isAdmin } = useAuth()
   const { pathname } = useLocation()
+  useTitle('Dashboard')
 
   if (loading) return <Loading />
   if (!user) return <SignInCard />

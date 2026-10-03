@@ -10,7 +10,8 @@
     "typecheck": "tsc",
     "emulators": "firebase emulators:start --project demo-foodweb --import=./emulator-data --export-on-exit",
     "test:rules": "firebase emulators:exec --project demo-foodweb --only firestore,storage \"vitest run --config vitest.rules.config.ts\"",
-    "seed": "node scripts/seed.ts"
+    "seed": "node scripts/seed.ts",
+    "test:unit": "vitest run tests/unit"
   },
   "dependencies": {
     "browser-image-compression": "^2.0.2",
