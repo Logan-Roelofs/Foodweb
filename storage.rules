@@ -1,0 +1,10 @@
+rules_version = '2';
+
+// Phase 1: everything is locked down.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

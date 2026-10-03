@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log
+emulator-data/
+.firebase/
+# Never commit service account keys
+*-service-account*.json
+service-account*.json

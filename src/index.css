@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+/* Foodweb "cozy kitchen" palette */
+@theme {
+  --color-cream-50: #fdf9f3;
+  --color-cream-100: #f7efe3;
+  --color-cream-200: #efe1cc;
+  --color-terracotta-500: #b85c38;
+  --color-terracotta-600: #9c4a2b;
+  --color-terracotta-700: #7d3a21;
+  --color-olive-600: #6b7046;
+  --color-cocoa-700: #5c4033;
+  --color-cocoa-900: #3a2a22;
+
+  --font-serif: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cream-100 text-cocoa-900 font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+  }
+}
