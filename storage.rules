@@ -6,7 +6,7 @@ service firebase.storage {
     // Admin allowlist (Firebase Auth UIDs). Keep in sync with firestore.rules;
     // a test fails if the two lists differ.
     function isAdmin() {
-      return request.auth != null && request.auth.uid in ['ADMIN_UID_NOT_SET'];
+      return request.auth != null && request.auth.uid in ['3gkTTn7yh8e8mneFegE0IigyhWk2'];
     }
 
     // Recipe photos. Compressed in the browser before upload, so 2 MB is generous.

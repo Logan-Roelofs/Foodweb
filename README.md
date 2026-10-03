@@ -68,7 +68,7 @@ These rules are what actually protect your data. `VITE_ADMIN_UIDS` only decides 
 
 **To make yourself admin:**
 1. Go to `https://<project-id>.web.app/admin` and sign in with your Google account. You'll see **Not authorized** with your user ID. Click **Copy user ID**.
-2. In `firestore.rules` **and** `storage.rules`, replace `ADMIN_UID_NOT_SET` with your user ID. A test fails if the two files don't match.
+2. In `firestore.rules` **and** `storage.rules`, put your user ID in the allowlist. A test fails if the two files don't match.
 3. Set `VITE_ADMIN_UIDS` to the same ID in your local `.env` and in GitHub (**Settings**, then **Secrets and variables**, then **Actions**, then the **Variables** tab).
 4. Commit and push. When the deploy finishes, reload `/admin`.
 

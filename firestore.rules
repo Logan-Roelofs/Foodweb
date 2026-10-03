@@ -8,7 +8,7 @@ service cloud.firestore {
     // Admin allowlist (Firebase Auth UIDs). Keep in sync with storage.rules;
     // a test fails if the two lists differ.
     function isAdmin() {
-      return request.auth != null && request.auth.uid in ['ADMIN_UID_NOT_SET'];
+      return request.auth != null && request.auth.uid in ['3gkTTn7yh8e8mneFegE0IigyhWk2'];
     }
 
     function isStr(v, min, max) {
