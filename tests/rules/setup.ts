@@ -80,3 +80,34 @@ export function validSnapshot(overrides: Record<string, unknown> = {}) {
     ...overrides,
   }
 }
+
+/** A community (potluck) menu that passes validation when written by the admin. */
+export function validCommunityMenu(overrides: Record<string, unknown> = {}) {
+  return {
+    title: 'Thanksgiving Potluck',
+    eventDate: '2026-11-26',
+    description: 'Bring a dish to share!',
+    courses: ['Sides', 'Mains', 'Desserts', 'Drinks'],
+    active: true,
+    locked: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...overrides,
+  }
+}
+
+/** A potluck entry for the given user. */
+export function validEntry(uid: string, overrides: Record<string, unknown> = {}) {
+  return {
+    uid,
+    displayName: 'Aunt Sarah',
+    course: 'Desserts',
+    dishName: 'Pumpkin pie',
+    description: 'With whipped cream.',
+    link: null,
+    recipeText: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...overrides,
+  }
+}

@@ -15,7 +15,7 @@ export function AdminLayout() {
   if (!isAdmin) return <NotAuthorized />
 
   const tabClass = (active: boolean) =>
-    `rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+    `rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition sm:px-4 ${
       active ? 'bg-terracotta-500 text-cream-50' : 'text-cocoa-700 hover:bg-cream-200/60'
     }`
   const onRecipes = pathname === '/admin' || pathname.startsWith('/admin/recipes')
@@ -24,15 +24,19 @@ export function AdminLayout() {
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-semibold">Kitchen dashboard</h1>
-        <nav className="flex gap-1 rounded-full bg-cream-50 p-1 ring-1 ring-cream-200">
+        <nav className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-cream-50 p-1 ring-1 ring-cream-200">
           <NavLink to="/admin" className={() => tabClass(onRecipes)}>
             Recipes
           </NavLink>
           <NavLink to="/admin/menus" className={({ isActive }) => tabClass(isActive)}>
             Menus
           </NavLink>
+          <NavLink to="/admin/potlucks" className={({ isActive }) => tabClass(isActive)}>
+            Potlucks
+          </NavLink>
           <NavLink to="/admin/labels" className={({ isActive }) => tabClass(isActive)}>
-            Tags & categories
+            <span className="sm:hidden">Tags</span>
+            <span className="hidden sm:inline">Tags & categories</span>
           </NavLink>
         </nav>
       </div>

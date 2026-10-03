@@ -78,3 +78,41 @@ export type RecipeSnapshot = Pick<
 export interface MenuRecipe extends RecipeSnapshot {
   id: string
 }
+
+// ---------- Community menus (potlucks) ----------
+
+export interface CommunityMenuDoc {
+  title: string
+  /** "YYYY-MM-DD", or null for no date. */
+  eventDate: string | null
+  description: string
+  /** Course names chosen by the admin, e.g. ["Sides", "Mains"]. */
+  courses: string[]
+  /** False once the link is turned off. */
+  active: boolean
+  /** True once sign-ups are closed. */
+  locked: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface CommunityMenu extends CommunityMenuDoc {
+  id: string
+}
+
+/** One dish someone is bringing (communityMenus/{id}/entries/{entryId}). */
+export interface EntryDoc {
+  uid: string
+  displayName: string
+  course: string
+  dishName: string
+  description: string
+  link: string | null
+  recipeText: string | null
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface Entry extends EntryDoc {
+  id: string
+}

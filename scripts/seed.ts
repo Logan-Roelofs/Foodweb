@@ -180,7 +180,73 @@ async function seedMenu() {
   console.log(`✔ Sample menu at http://localhost:5173/menu/${menuId}`)
 }
 
+async function seedPotluck() {
+  // A guest account to test contributing as a non-admin.
+  const guestUid = 'sample-guest-jamie'
+  try {
+    await auth.deleteUser(guestUid)
+  } catch {
+    // Didn't exist yet.
+  }
+  await auth.importUsers([
+    {
+      uid: guestUid,
+      email: 'jamie@foodweb.test',
+      emailVerified: true,
+      displayName: 'Jamie Guest',
+      providerData: [
+        { uid: 'google-jamie', email: 'jamie@foodweb.test', displayName: 'Jamie Guest', providerId: 'google.com' },
+      ],
+    },
+  ])
+
+  const potluckId = 'sampleThanksgiving01'
+  const now = FieldValue.serverTimestamp()
+  const batch = db.batch()
+  batch.set(db.doc(`communityMenus/${potluckId}`), {
+    title: 'Thanksgiving Potluck',
+    eventDate: '2026-11-26',
+    description: 'Dinner at 4pm at our place. Bring a dish and a big appetite!',
+    courses: ['Appetizers', 'Sides', 'Mains', 'Desserts', 'Drinks'],
+    active: true,
+    locked: false,
+    createdAt: now,
+    updatedAt: now,
+  })
+  const entry = (uid: string, data: Record<string, unknown>) => ({
+    uid,
+    description: '',
+    link: null,
+    recipeText: null,
+    createdAt: now,
+    updatedAt: now,
+    ...data,
+  })
+  batch.set(
+    db.doc(`communityMenus/${potluckId}/entries/sample-entry-1`),
+    entry(guestUid, {
+      displayName: 'Cousin Jamie',
+      course: 'Sides',
+      dishName: 'Garlic mashed potatoes',
+      description: 'A big pot, extra butter.',
+    }),
+  )
+  batch.set(
+    db.doc(`communityMenus/${potluckId}/entries/sample-entry-2`),
+    entry('sample-guest-sarah', {
+      displayName: 'Aunt Sarah',
+      course: 'Desserts',
+      dishName: 'Pumpkin pie',
+      description: 'With homemade whipped cream.',
+      recipeText: 'Blind-bake the crust. Whisk pumpkin, eggs, cream, sugar, and spices. Bake at 350°F for 50 minutes.',
+    }),
+  )
+  await batch.commit()
+  console.log(`✔ Sample potluck at http://localhost:5173/potluck/${potluckId} (guest login: "Jamie Guest")`)
+}
+
 await seedAdmin()
 await seedData()
 await seedMenu()
+await seedPotluck()
 console.log('\nDone. Sign in at http://localhost:5173/admin and pick "Foodweb Admin".')

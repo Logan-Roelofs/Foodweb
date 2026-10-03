@@ -145,6 +145,88 @@ service cloud.firestore {
       }
     }
 
+    // ---------- Community menus (potlucks, shared by link) ----------
+
+    function isValidCommunityMenu(d) {
+      return d.keys().hasOnly([
+          'title', 'eventDate', 'description', 'courses', 'active', 'locked', 'createdAt', 'updatedAt'])
+        && d.keys().hasAll([
+          'title', 'eventDate', 'description', 'courses', 'active', 'locked', 'createdAt', 'updatedAt'])
+        && isStr(d.title, 1, 120)
+        && (d.eventDate == null
+          || (d.eventDate is string && d.eventDate.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')))
+        && isStr(d.description, 0, 2000)
+        && d.courses is list && d.courses.size() >= 1 && d.courses.size() <= 12
+        && d.active is bool
+        && d.locked is bool
+        && d.updatedAt == request.time;
+    }
+
+    function communityMenu(menuId) {
+      return get(/databases/$(database)/documents/communityMenus/$(menuId)).data;
+    }
+
+    // Open for sign-ups: link on and not locked.
+    function isOpenForEntries(menuId) {
+      let menu = communityMenu(menuId);
+      return menu.active == true && menu.locked == false;
+    }
+
+    function isValidEntry(menuId, d) {
+      return d.keys().hasOnly([
+          'uid', 'displayName', 'course', 'dishName', 'description', 'link', 'recipeText',
+          'createdAt', 'updatedAt'])
+        && d.keys().hasAll([
+          'uid', 'displayName', 'course', 'dishName', 'description', 'link', 'recipeText',
+          'createdAt', 'updatedAt'])
+        && isStr(d.displayName, 1, 50)
+        && isStr(d.dishName, 1, 100)
+        && isStr(d.description, 0, 500)
+        && (d.link == null || (isStr(d.link, 1, 500) && d.link.matches('https?://[^ ]+')))
+        && (d.recipeText == null || isStr(d.recipeText, 1, 5000))
+        && d.course in communityMenu(menuId).courses
+        && d.updatedAt == request.time;
+    }
+
+    match /communityMenus/{menuId} {
+      // Like curated menus: open by link, never listable except by the admin.
+      allow get: if isAdmin() || resource.data.active == true;
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && isValidCommunityMenu(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && isValidCommunityMenu(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
+
+      match /entries/{entryId} {
+        // Everyone with the link can see what's been claimed.
+        allow read: if isAdmin() || communityMenu(menuId).active == true;
+
+        // Signed-in contributors add dishes under their own UID.
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && isOpenForEntries(menuId)
+          && isValidEntry(menuId, request.resource.data)
+          && request.resource.data.createdAt == request.time;
+
+        // Contributors edit only their own dishes, and only while sign-ups are open.
+        allow update: if request.auth != null
+          && resource.data.uid == request.auth.uid
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.createdAt == resource.data.createdAt
+          && isOpenForEntries(menuId)
+          && isValidEntry(menuId, request.resource.data);
+
+        // The admin can remove anything, any time.
+        allow delete: if isAdmin()
+          || (request.auth != null
+            && resource.data.uid == request.auth.uid
+            && isOpenForEntries(menuId));
+      }
+    }
+
     // Everything else is denied by default.
   }
 }

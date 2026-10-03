@@ -67,10 +67,12 @@ export function AdminRecipesPage() {
                     {r.updatedAt?.toDate().toLocaleDateString()}
                   </div>
                 </div>
-                {r.featured && <Badge tone="amber">Featured</Badge>}
-                <Badge tone={r.status === 'published' ? 'green' : 'neutral'}>
-                  {r.status === 'published' ? 'Published' : 'Draft'}
-                </Badge>
+                <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center">
+                  {r.featured && <Badge tone="amber">Featured</Badge>}
+                  <Badge tone={r.status === 'published' ? 'green' : 'neutral'}>
+                    {r.status === 'published' ? 'Published' : 'Draft'}
+                  </Badge>
+                </div>
               </Link>
             </li>
           ))}
