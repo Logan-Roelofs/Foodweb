@@ -101,6 +101,7 @@ async function seedData() {
       tags: ['dessert'],
       categoryId: 'baking',
       notes: 'Let it cool for at least two hours so the filling sets.',
+      macros: { protein: 38, fat: 196, carbs: 548, fiber: 30 },
       status: 'published',
       featured: true,
     }),
@@ -121,6 +122,7 @@ async function seedData() {
       ],
       tags: ['dinner', 'vegetarian', 'quick'],
       categoryId: 'mains',
+      macros: { protein: 58, fat: 80, carbs: 340, fiber: 14 },
       status: 'published',
     }),
   )
@@ -174,6 +176,7 @@ async function seedMenu() {
       ingredients: r.ingredients,
       steps: r.steps,
       notes: r.notes,
+      macros: r.macros ?? null,
     })
   }
   await batch.commit()

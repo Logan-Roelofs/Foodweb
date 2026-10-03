@@ -111,9 +111,19 @@ describe('menus: writing', () => {
     await assertSucceeds(setDoc(doc(admin(), 'menus/m1'), validMenu({ date: null })))
   })
 
+  it('recipe copies can carry macros', async () => {
+    await assertSucceeds(
+      setDoc(
+        doc(admin(), 'menus/m1/recipes/r1'),
+        validSnapshot({ macros: { protein: 30, fat: 12, carbs: 40, fiber: 6 } }),
+      ),
+    )
+  })
+
   it.each([
     ['empty title', { title: '' }],
     ['zero servings', { servings: 0 }],
+    ['bad macros', { macros: { protein: -5, fat: 0, carbs: 0, fiber: 0 } }],
     ['extra field', { status: 'draft' }],
   ])('rejects a recipe copy with %s', async (_label, overrides) => {
     await assertFails(setDoc(doc(admin(), 'menus/m1/recipes/r1'), validSnapshot(overrides)))

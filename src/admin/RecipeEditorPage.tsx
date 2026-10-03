@@ -9,7 +9,8 @@ import {
   type RecipeInput,
 } from '../lib/recipeAdmin'
 import { useLabels } from '../lib/taxonomy'
-import type { Recipe, RecipeStatus } from '../types'
+import { MACRO_KEYS, type MacroKey, type Macros, type Recipe, type RecipeStatus } from '../types'
+import { MACRO_LABELS, formatGrams } from '../lib/nutrition'
 import {
   Button,
   Card,
@@ -32,9 +33,13 @@ interface FormState {
   tags: string[]
   categoryId: string
   notes: string
+  /** Whole-recipe grams, as typed. */
+  macros: Record<MacroKey, string>
   status: RecipeStatus
   featured: boolean
 }
+
+const emptyMacros: Record<MacroKey, string> = { protein: '', fat: '', carbs: '', fiber: '' }
 
 const emptyForm: FormState = {
   title: '',
@@ -47,6 +52,7 @@ const emptyForm: FormState = {
   tags: [],
   categoryId: '',
   notes: '',
+  macros: emptyMacros,
   status: 'draft',
   featured: false,
 }
@@ -63,6 +69,9 @@ function toForm(r: Recipe): FormState {
     tags: r.tags,
     categoryId: r.categoryId ?? '',
     notes: r.notes,
+    macros: Object.fromEntries(
+      MACRO_KEYS.map((k) => [k, r.macros?.[k] == null ? '' : String(r.macros[k])]),
+    ) as Record<MacroKey, string>,
     status: r.status,
     featured: r.featured,
   }
@@ -99,6 +108,17 @@ function toInput(f: FormState): { input?: RecipeInput; error?: string } {
   if (ingredients.length > 150) return { error: 'Too many ingredient lines (max 150).' }
   if (steps.length > 100) return { error: 'Too many steps (max 100).' }
 
+  // Blank macro fields are stored as null; no macros at all as null.
+  const macros = {} as Macros
+  for (const k of MACRO_KEYS) {
+    const raw = f.macros[k].trim()
+    const n = raw === '' ? null : Number(raw)
+    if (n !== null && !(Number.isFinite(n) && n >= 0 && n <= 100000)) {
+      return { error: `${MACRO_LABELS[k]} must be a number of grams (like 42 or 12.5).` }
+    }
+    macros[k] = n
+  }
+
   return {
     input: {
       title,
@@ -111,6 +131,7 @@ function toInput(f: FormState): { input?: RecipeInput; error?: string } {
       tags: f.tags,
       categoryId: f.categoryId || null,
       notes: f.notes.trim(),
+      macros: MACRO_KEYS.some((k) => macros[k] !== null) ? macros : null,
       status: f.status,
       featured: f.featured,
     },
@@ -340,6 +361,28 @@ function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
             maxLength={5000}
           />
         </Field>
+
+        <fieldset>
+          <legend className="text-sm font-semibold text-cocoa-700">Nutrition (optional)</legend>
+          <p className="mt-0.5 text-xs text-cocoa-500">
+            Grams for the <strong>whole recipe</strong>. Per-serving amounts are worked out from the
+            servings above. Leave a box empty to hide it.
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {MACRO_KEYS.map((k) => (
+              <label key={k} className="block">
+                <span className="mb-1 block text-xs font-semibold text-cocoa-700">{MACRO_LABELS[k]} (g)</span>
+                <input
+                  className={inputClass}
+                  inputMode="decimal"
+                  value={form.macros[k]}
+                  onChange={(e) => set('macros', { ...form.macros, [k]: e.target.value })}
+                />
+              </label>
+            ))}
+          </div>
+          <PerServingPreview macros={form.macros} servings={form.servings} />
+        </fieldset>
       </Card>
 
       <Card className="space-y-5">
@@ -450,5 +493,22 @@ function RecipeEditor({ recipeId }: { recipeId: string | undefined }) {
         </div>
       </div>
     </form>
+  )
+}
+
+/** "Per serving: 20 g protein · 10 g fat …" under the macro inputs. */
+function PerServingPreview({ macros, servings }: { macros: Record<MacroKey, string>; servings: string }) {
+  const count = Number(servings)
+  if (!Number.isInteger(count) || count < 1) return null
+  const parts = MACRO_KEYS.flatMap((k) => {
+    const grams = Number(macros[k])
+    if (macros[k].trim() === '' || !Number.isFinite(grams) || grams < 0) return []
+    return [`${formatGrams(grams / count)} ${MACRO_LABELS[k].toLowerCase()}`]
+  })
+  if (parts.length === 0) return null
+  return (
+    <p className="mt-2 text-sm text-olive-700">
+      Per serving ({count}): {parts.join(' · ')}
+    </p>
   )
 }

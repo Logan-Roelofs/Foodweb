@@ -1,7 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { parseIngredient, scaleIngredient } from '../lib/ingredients'
 import { formatMinutes } from '../lib/format'
-import type { RecipeDoc } from '../types'
+import { MACRO_KEYS, type Macros, type RecipeDoc } from '../types'
+import { MACRO_LABELS, formatGrams, hasMacros, scaleMacros } from '../lib/nutrition'
 import { RecipePhoto } from './RecipeCard'
 import { Button } from './ui'
 
@@ -16,6 +17,7 @@ type RecipeContent = Pick<
   | 'ingredients'
   | 'steps'
   | 'notes'
+  | 'macros'
 >
 
 /**
@@ -85,6 +87,10 @@ export function RecipeView({
           </div>
         ))}
       </dl>
+
+      {hasMacros(recipe.macros) && (
+        <NutritionPanel macros={recipe.macros} recipeServings={recipe.servings} servings={servings} />
+      )}
 
       <div className="mt-10 grid gap-10 md:grid-cols-[2fr_3fr] print:mt-6 print:grid-cols-[2fr_3fr] print:gap-6">
         <section>
@@ -182,5 +188,43 @@ export function RecipeView({
         </Button>
       </div>
     </article>
+  )
+}
+
+/** Per-serving macros, plus whole-recipe totals that follow the servings scaler. */
+function NutritionPanel({
+  macros,
+  recipeServings,
+  servings,
+}: {
+  macros: Macros
+  recipeServings: number
+  servings: number
+}) {
+  const perServing = scaleMacros(macros, 1 / recipeServings)
+  const whole = scaleMacros(macros, servings / recipeServings)
+  const shown = MACRO_KEYS.filter((k) => macros[k] !== null)
+
+  return (
+    <section
+      aria-labelledby="nutrition-heading"
+      className="mt-4 rounded-3xl bg-cream-50 px-4 py-4 ring-1 ring-cream-200 print:mt-3 print:py-2"
+    >
+      <h2 id="nutrition-heading" className="text-center text-xs font-semibold tracking-wider text-cocoa-500 uppercase">
+        Nutrition per serving
+      </h2>
+      <dl className={`mt-2 grid text-center ${shown.length >= 4 ? 'grid-cols-4' : shown.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        {shown.map((k) => (
+          <div key={k}>
+            <dt className="text-xs text-cocoa-500">{MACRO_LABELS[k]}</dt>
+            <dd className="font-serif text-lg">{formatGrams(perServing[k]!)}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 text-center text-xs text-cocoa-500">
+        Whole recipe ({servings} {servings === 1 ? 'serving' : 'servings'}):{' '}
+        {shown.map((k) => `${formatGrams(whole[k]!)} ${MACRO_LABELS[k].toLowerCase()}`).join(' · ')}
+      </p>
+    </section>
   )
 }

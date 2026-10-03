@@ -41,6 +41,7 @@ function toSnapshot(r: Recipe): RecipeSnapshot {
     ingredients: r.ingredients,
     steps: r.steps,
     notes: r.notes,
+    macros: r.macros ?? null,
   }
 }
 

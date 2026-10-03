@@ -128,6 +128,36 @@ describe('recipes: writing', () => {
     await assertFails(setDoc(doc(admin(), 'recipes/r1'), validRecipe(overrides)))
   })
 
+  describe('macros', () => {
+    const macros = { protein: 82.5, fat: 40, carbs: 210, fiber: null }
+
+    it('accepts whole-recipe macros, with blanks as null', async () => {
+      await assertSucceeds(setDoc(doc(admin(), 'recipes/r1'), validRecipe({ macros })))
+    })
+
+    it('accepts no macros (null) and recipes saved before macros existed', async () => {
+      await assertSucceeds(setDoc(doc(admin(), 'recipes/r1'), validRecipe({ macros: null })))
+      await assertSucceeds(setDoc(doc(admin(), 'recipes/r2'), validRecipe()))
+    })
+
+    it('lets older recipes without macros be updated (e.g. removing a deleted tag)', async () => {
+      await seed('recipes/r1', seededRecipe('published'))
+      await assertSucceeds(
+        updateDoc(doc(admin(), 'recipes/r1'), { tags: [], updatedAt: serverTimestamp() }),
+      )
+    })
+
+    it.each([
+      ['a negative amount', { ...macros, fat: -1 }],
+      ['text instead of a number', { ...macros, protein: '20g' }],
+      ['an unknown macro', { ...macros, sugar: 10 }],
+      ['a missing macro', { protein: 1, fat: 1, carbs: 1 }],
+      ['a list instead of a map', [1, 2, 3, 4]],
+    ])('rejects %s', async (_label, bad) => {
+      await assertFails(setDoc(doc(admin(), 'recipes/r1'), validRecipe({ macros: bad })))
+    })
+  })
+
   it('accepts a photo path inside the recipe folder', async () => {
     await assertSucceeds(
       setDoc(

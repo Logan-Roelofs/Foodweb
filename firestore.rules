@@ -23,13 +23,31 @@ service cloud.firestore {
       return v is list && v.size() <= maxItems;
     }
 
+    function isGrams(v) {
+      return v == null || (v is number && v >= 0 && v <= 100000);
+    }
+
+    // Whole-recipe macros in grams. Optional: recipes saved before macros
+    // existed don't have the field.
+    function isOptionalMacros(d) {
+      return !('macros' in d)
+        || d.macros == null
+        || (d.macros is map
+          && d.macros.keys().hasOnly(['protein', 'fat', 'carbs', 'fiber'])
+          && d.macros.keys().hasAll(['protein', 'fat', 'carbs', 'fiber'])
+          && isGrams(d.macros.protein)
+          && isGrams(d.macros.fat)
+          && isGrams(d.macros.carbs)
+          && isGrams(d.macros.fiber));
+    }
+
     // ---------- Recipes ----------
 
     function isValidRecipe(recipeId, d) {
       return d.keys().hasOnly([
           'title', 'description', 'photoPath', 'photoUrl', 'prepMinutes', 'cookMinutes',
           'servings', 'ingredients', 'steps', 'tags', 'categoryId', 'notes', 'status',
-          'featured', 'createdAt', 'updatedAt', 'publishedAt'])
+          'featured', 'createdAt', 'updatedAt', 'publishedAt', 'macros'])
         && d.keys().hasAll([
           'title', 'description', 'photoPath', 'photoUrl', 'prepMinutes', 'cookMinutes',
           'servings', 'ingredients', 'steps', 'tags', 'categoryId', 'notes', 'status',
@@ -46,6 +64,7 @@ service cloud.firestore {
         && isList(d.tags, 30)
         && (d.categoryId == null || isStr(d.categoryId, 1, 100))
         && isStr(d.notes, 0, 5000)
+        && isOptionalMacros(d)
         && d.status in ['draft', 'published']
         && d.featured is bool
         && d.updatedAt == request.time
@@ -106,7 +125,7 @@ service cloud.firestore {
     function isValidRecipeSnapshot(d) {
       return d.keys().hasOnly([
           'title', 'description', 'photoUrl', 'prepMinutes', 'cookMinutes', 'servings',
-          'ingredients', 'steps', 'notes'])
+          'ingredients', 'steps', 'notes', 'macros'])
         && d.keys().hasAll([
           'title', 'description', 'photoUrl', 'prepMinutes', 'cookMinutes', 'servings',
           'ingredients', 'steps', 'notes'])
@@ -118,7 +137,8 @@ service cloud.firestore {
         && isInt(d.servings, 1, 100)
         && isList(d.ingredients, 150)
         && isList(d.steps, 100)
-        && isStr(d.notes, 0, 5000);
+        && isStr(d.notes, 0, 5000)
+        && isOptionalMacros(d);
     }
 
     function menuIsActive(menuId) {

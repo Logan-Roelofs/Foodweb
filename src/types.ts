@@ -2,6 +2,12 @@ import type { Timestamp } from 'firebase/firestore'
 
 export type RecipeStatus = 'draft' | 'published'
 
+export const MACRO_KEYS = ['protein', 'fat', 'carbs', 'fiber'] as const
+export type MacroKey = (typeof MACRO_KEYS)[number]
+
+/** Grams for the whole recipe. A null value means not entered. */
+export type Macros = Record<MacroKey, number | null>
+
 /** Shape of a document in the `recipes` collection (see firestore.rules). */
 export interface RecipeDoc {
   title: string
@@ -18,6 +24,8 @@ export interface RecipeDoc {
   tags: string[]
   categoryId: string | null
   notes: string
+  /** Whole-recipe macros. Missing on recipes saved before macros existed. */
+  macros?: Macros | null
   status: RecipeStatus
   featured: boolean
   createdAt: Timestamp
@@ -73,6 +81,7 @@ export type RecipeSnapshot = Pick<
   | 'ingredients'
   | 'steps'
   | 'notes'
+  | 'macros'
 >
 
 export interface MenuRecipe extends RecipeSnapshot {
