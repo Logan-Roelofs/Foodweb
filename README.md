@@ -124,9 +124,9 @@ To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2
 
 ## Link previews
 
-When a Foodweb link is shared in a text or chat, apps show the card in `public/og-image.png` (1200×630) with the title "Foodweb". The tags are in `index.html`. Preview crawlers don't run JavaScript, so every page (including menus and potlucks) shares this one card. Making them page-specific would need server-side rendering via a Cloud Function.
+When a Foodweb link is shared in a text or chat, apps show just the Foodweb logo (`public/og-logo.png`, 1200×630) with the title "Foodweb" and no description text. The tags are in `index.html`. Preview crawlers don't run JavaScript, so every page (including menus and potlucks) shares this one card. Making them page-specific would need server-side rendering via a Cloud Function.
 
-The image URL is built from `VITE_FIREBASE_PROJECT_ID` (`https://<project-id>.web.app/og-image.png`). If you add a custom domain later, change that `og:image` line in `index.html` to use it.
+The image URL is built from `VITE_FIREBASE_PROJECT_ID` (`https://<project-id>.web.app/og-logo.png`). If you add a custom domain later, change that `og:image` line in `index.html` to use it.
 
 ## Optional: App Check (only if you ever get spam)
 
