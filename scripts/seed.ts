@@ -179,8 +179,37 @@ async function seedMenu() {
       macros: r.macros ?? null,
     })
   }
+  // A "menu only" card: no recipe links, and the copies hold no steps.
+  const menuOnlyId = 'sampleMenuOnlyCard001'
+  batch.set(db.doc(`menus/${menuOnlyId}`), {
+    title: 'Birthday Dinner',
+    date: '2026-12-05',
+    message: 'Happy birthday! Tonight’s menu, just for you.',
+    courses: { appetizer: [], main: ['sample-weeknight-pasta'], dessert: ['sample-apple-pie'], drinks: [] },
+    active: true,
+    showRecipes: false,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  })
+  for (const id of ['sample-weeknight-pasta', 'sample-apple-pie']) {
+    const r = (await db.doc(`recipes/${id}`).get()).data()!
+    batch.set(db.doc(`menus/${menuOnlyId}/recipes/${id}`), {
+      title: r.title,
+      description: r.description,
+      photoUrl: r.photoUrl,
+      prepMinutes: 0,
+      cookMinutes: 0,
+      servings: 1,
+      ingredients: [],
+      steps: [],
+      notes: '',
+      macros: null,
+    })
+  }
+
   await batch.commit()
   console.log(`✔ Sample menu at http://localhost:5173/menu/${menuId}`)
+  console.log(`✔ Sample menu-only card at http://localhost:5173/menu/${menuOnlyId}`)
 }
 
 async function seedPotluck() {

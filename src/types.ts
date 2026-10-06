@@ -58,6 +58,11 @@ export interface MenuDoc {
   courses: Record<MenuCourse, string[]>
   /** False once the link is revoked. */
   active: boolean
+  /**
+   * False for a "menu only" card: no recipe links, no site navigation, and
+   * the recipe copies hold no ingredients or steps. Missing on older menus (= true).
+   */
+  showRecipes?: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }

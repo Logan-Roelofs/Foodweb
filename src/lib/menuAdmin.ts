@@ -13,7 +13,10 @@ import { menuRecipesCol, menusCol } from './menus'
 import { MENU_COURSES, type Menu, type MenuDoc, type Recipe, type RecipeSnapshot } from '../types'
 
 /** The fields the admin edits in the menu form. */
-export type MenuInput = Pick<MenuDoc, 'title' | 'date' | 'message' | 'courses' | 'active'>
+export type MenuInput = Pick<
+  MenuDoc,
+  'title' | 'date' | 'message' | 'courses' | 'active' | 'showRecipes'
+>
 
 export async function listMenus(): Promise<Menu[]> {
   const snap = await getDocs(query(menusCol, orderBy('updatedAt', 'desc')))
@@ -30,7 +33,25 @@ export function newMenuId(): string {
   return doc(menusCol).id
 }
 
-function toSnapshot(r: Recipe): RecipeSnapshot {
+/**
+ * The copy stored with the menu. For a "menu only" card it keeps just what the
+ * card shows, so the ingredients and steps aren't readable through the link.
+ */
+function toSnapshot(r: Recipe, withRecipe: boolean): RecipeSnapshot {
+  if (!withRecipe) {
+    return {
+      title: r.title,
+      description: r.description,
+      photoUrl: r.photoUrl,
+      prepMinutes: 0,
+      cookMinutes: 0,
+      servings: 1,
+      ingredients: [],
+      steps: [],
+      notes: '',
+      macros: null,
+    }
+  }
   return {
     title: r.title,
     description: r.description,
@@ -47,7 +68,8 @@ function toSnapshot(r: Recipe): RecipeSnapshot {
 
 /**
  * Saves the menu and refreshes its recipe copies in one atomic batch:
- * every chosen recipe is copied in its current form, and copies of
+ * every chosen recipe is copied in its current form (trimmed to name,
+ * description, and photo for a "menu only" card), and copies of
  * recipes that were removed from the menu are deleted.
  */
 export async function saveMenu(
@@ -67,7 +89,7 @@ export async function saveMenu(
 
   for (const recipeId of chosen) {
     const recipe = byId.get(recipeId)
-    if (recipe) batch.set(doc(menuRecipesCol(id), recipeId), toSnapshot(recipe))
+    if (recipe) batch.set(doc(menuRecipesCol(id), recipeId), toSnapshot(recipe, input.showRecipes !== false))
   }
 
   if (existing) {

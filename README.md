@@ -96,6 +96,7 @@ To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2
 
 - **Unlisted:** each menu lives at `/menu/<id>`, where `<id>` is a random 20-character Firestore ID. The rules let anyone *open* an active menu by its ID, but only the admin can *list* menus, so links can't be discovered. Hosting also sends `X-Robots-Tag: noindex` for `/menu/**` so search engines skip them.
 - **Recipe copies:** when you save a menu, each chosen recipe is copied into `menus/<id>/recipes/<recipeId>`. That's how a menu can include drafts without making them public. If you edit a recipe later, open the menu and click **Save menu** to refresh its copy.
+- **Menu only:** untick **Let guests open the recipes** (`showRecipes: false`) to share a single-page card. Dishes aren't clickable, the Foodweb name in the top bar isn't a link, and the site navigation is hidden. The recipe copies are saved with just the name, description, and photo, so the ingredients and steps can't be read through the link. Ticking it again and saving restores the full copies.
 - **Turning a link off** (`active: false`) hides the menu *and* its recipe copies. A revoked link, a mistyped link, and a menu that never existed all show the same "This menu isn't available" page.
 
 ## How potlucks (community menus) work

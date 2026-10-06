@@ -107,6 +107,16 @@ describe('menus: writing', () => {
     await assertFails(setDoc(doc(admin(), 'menus/m1'), validMenu(overrides)))
   })
 
+  it('accepts the menu-only switch on or off, and older menus without it', async () => {
+    await assertSucceeds(setDoc(doc(admin(), 'menus/m1'), validMenu({ showRecipes: false })))
+    await assertSucceeds(setDoc(doc(admin(), 'menus/m2'), validMenu({ showRecipes: true })))
+    await assertSucceeds(setDoc(doc(admin(), 'menus/m3'), validMenu()))
+  })
+
+  it('rejects a menu-only switch that is not true/false', async () => {
+    await assertFails(setDoc(doc(admin(), 'menus/m1'), validMenu({ showRecipes: 'no' })))
+  })
+
   it('accepts a menu without a date', async () => {
     await assertSucceeds(setDoc(doc(admin(), 'menus/m1'), validMenu({ date: null })))
   })

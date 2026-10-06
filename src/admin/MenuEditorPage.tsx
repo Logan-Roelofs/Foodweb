@@ -33,6 +33,7 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
   const [message, setMessage] = useState('')
   const [courses, setCourses] = useState(emptyCourses)
   const [active, setActive] = useState(true)
+  const [showRecipes, setShowRecipes] = useState(true)
   const [dropped, setDropped] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +65,7 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
         setMessage(menu.message)
         setCourses(kept)
         setActive(menu.active)
+        setShowRecipes(menu.showRecipes !== false)
         setDropped(missing)
       })
       .catch((err) => !cancelled && setLoadError(errorMessage(err)))
@@ -97,6 +99,7 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
       message: message.trim(),
       courses,
       active,
+      showRecipes,
     }
     setError(null)
     setBusy(true)
@@ -203,6 +206,22 @@ function MenuEditor({ menuId }: { menuId: string | undefined }) {
             maxLength={2000}
           />
         </Field>
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={showRecipes}
+            onChange={(e) => setShowRecipes(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-terracotta-500"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-cocoa-700">Let guests open the recipes</span>
+            <span className="block text-xs text-cocoa-500">
+              {showRecipes
+                ? 'Each dish links to its full recipe, and guests can browse the rest of Foodweb.'
+                : 'Menu only: guests see dish names, descriptions, and photos on a single page. No recipe links, no site navigation, and the ingredients and steps aren’t shared.'}
+            </span>
+          </span>
+        </label>
       </Card>
 
       <Card className="space-y-6">

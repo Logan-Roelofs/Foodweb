@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { COURSE_LABELS, formatMenuDate, getSharedMenu } from '../lib/menus'
 import { useTitle } from '../lib/format'
+import { useLayout } from '../app/Layout'
 import { RecipeView } from '../components/RecipeView'
 import { RecipePhoto } from '../components/RecipeCard'
 import { ErrorNote, Loading, errorMessage } from '../components/ui'
@@ -32,6 +33,14 @@ function useSharedMenu(menuId: string) {
       active = false
     }
   }, [menuId])
+
+  // Site navigation only appears for menus that share their recipes.
+  const { setMenuAllowsNav } = useLayout()
+  const allowsNav = !!data && data.menu.showRecipes !== false
+  useEffect(() => {
+    setMenuAllowsNav(allowsNav)
+    return () => setMenuAllowsNav(false)
+  }, [allowsNav, setMenuAllowsNav])
 
   return { data, error }
 }
@@ -69,6 +78,7 @@ export function MenuPage() {
   if (data === null) return <Unavailable />
 
   const { menu, recipes } = data
+  const showRecipes = menu.showRecipes !== false
   const courses = MENU_COURSES.map((c) => ({
     course: c,
     items: menu.courses[c].map((id) => recipes.get(id)).filter((r): r is MenuRecipe => !!r),
@@ -101,9 +111,9 @@ export function MenuPage() {
                 {COURSE_LABELS[course]}
               </h2>
               <ul className="mt-5 space-y-6">
-                {items.map((r) => (
-                  <li key={r.id}>
-                    <Link to={`/menu/${menu.id}/${r.id}`} className="group block">
+                {items.map((r) => {
+                  const dish = (
+                    <>
                       {r.photoUrl && (
                         <div className="mx-auto mb-3 h-28 w-28 overflow-hidden rounded-full ring-4 ring-cream-100">
                           <RecipePhoto recipe={r} />
@@ -115,12 +125,23 @@ export function MenuPage() {
                       {r.description && (
                         <p className="mx-auto mt-1 max-w-md text-cocoa-500">{r.description}</p>
                       )}
-                      <span className="mt-2 inline-block text-sm font-semibold text-terracotta-600 group-hover:underline">
-                        View recipe →
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+                    </>
+                  )
+                  return (
+                    <li key={r.id}>
+                      {showRecipes ? (
+                        <Link to={`/menu/${menu.id}/${r.id}`} className="group block">
+                          {dish}
+                          <span className="mt-2 inline-block text-sm font-semibold text-terracotta-600 group-hover:underline">
+                            View recipe →
+                          </span>
+                        </Link>
+                      ) : (
+                        dish
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </section>
           ))}
@@ -138,7 +159,8 @@ export function MenuRecipePage() {
 
   if (error) return <ErrorNote>{errorMessage(error)}</ErrorNote>
   if (data === undefined) return <Loading />
-  if (data === null || !recipe) return <Unavailable />
+  // Menu-only cards don't open recipes (their copies hold no steps anyway).
+  if (data === null || !recipe || data.menu.showRecipes === false) return <Unavailable />
 
   return (
     <div>

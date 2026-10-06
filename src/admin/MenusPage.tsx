@@ -54,6 +54,7 @@ export function MenusPage() {
                     {count === 1 ? 'dish' : 'dishes'}
                   </div>
                 </Link>
+                {m.showRecipes === false && <Badge>Menu only</Badge>}
                 <Badge tone={m.active ? 'green' : 'neutral'}>{m.active ? 'Link on' : 'Link off'}</Badge>
                 {m.active && (
                   <button
