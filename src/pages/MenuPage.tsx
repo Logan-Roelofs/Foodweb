@@ -128,11 +128,13 @@ export function MenuPage() {
                   return (
                     <li key={r.id}>
                       {showRecipes ? (
-                        <Link to={`/menu/${menu.id}/${r.id}`} className="group block">
+                        // The whole dish is the link; no "View recipe" label, to keep the card short.
+                        <Link
+                          to={`/menu/${menu.id}/${r.id}`}
+                          className="group block"
+                          aria-label={`${r.title}: see the recipe`}
+                        >
                           {dish}
-                          <span className="mt-2 inline-block text-sm font-semibold text-terracotta-600 group-hover:underline">
-                            View recipe →
-                          </span>
                         </Link>
                       ) : (
                         dish
