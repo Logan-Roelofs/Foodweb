@@ -94,12 +94,9 @@ export function MenuPage() {
           {menu.date && <p className="mt-3 text-cocoa-700">{formatMenuDate(menu.date)}</p>}
 
           {menu.message && (
-            <>
-              <Ornament />
-              <p className="mx-auto max-w-lg font-serif text-lg whitespace-pre-line text-cocoa-700 italic">
-                {menu.message}
-              </p>
-            </>
+            <p className="mx-auto mt-6 max-w-lg font-serif text-lg whitespace-pre-line text-cocoa-700 italic">
+              {menu.message}
+            </p>
           )}
 
           {courses.map(({ course, items }) => (
