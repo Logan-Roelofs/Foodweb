@@ -64,7 +64,7 @@ export function Layout() {
         <Outlet context={{ setMenuAllowsNav } satisfies LayoutContext} />
       </main>
       <footer className="py-8 text-center text-sm text-cocoa-500 print:hidden">
-        Made with love in a small kitchen.
+        Made with Lots Of Love
       </footer>
     </div>
   )
