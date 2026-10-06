@@ -4,6 +4,7 @@ import { formatMinutes } from '../lib/format'
 import { MACRO_KEYS, type Macros, type RecipeDoc } from '../types'
 import { MACRO_LABELS, formatGrams, hasMacros, scaleMacros } from '../lib/nutrition'
 import { RecipePhoto } from './RecipeCard'
+import { AddToListButton } from './AddToListButton'
 import { Button } from './ui'
 
 type RecipeContent = Pick<
@@ -29,6 +30,7 @@ export function RecipeView({
   eyebrow,
   tags,
   banner,
+  listSource,
 }: {
   recipe: RecipeContent
   /** Small label above the title, e.g. the category. */
@@ -36,6 +38,8 @@ export function RecipeView({
   tags?: ReactNode
   /** Shown above everything, e.g. a "Draft" notice. */
   banner?: ReactNode
+  /** When set, shows "Add to shopping list" (id + where the list links back to). */
+  listSource?: { id: string; href: string }
 }) {
   const [servings, setServings] = useState(recipe.servings)
   const [checked, setChecked] = useState<Set<number>>(new Set())
@@ -158,6 +162,9 @@ export function RecipeView({
               ),
             )}
           </ul>
+          {listSource && recipe.ingredients.length > 0 && (
+            <AddToListButton recipe={recipe} servings={servings} source={listSource} />
+          )}
         </section>
 
         <section>

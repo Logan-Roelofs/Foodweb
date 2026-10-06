@@ -87,6 +87,7 @@ export function RecipePage() {
       <RecipeView
         key={recipe.id}
         recipe={recipe}
+        listSource={{ id: recipe.id, href: '/recipes/' + recipe.id }}
         banner={
           recipe.status === 'draft' && (
             <p className="mb-6 rounded-xl bg-terracotta-500/10 px-4 py-3 text-center text-sm text-terracotta-700 print:hidden">

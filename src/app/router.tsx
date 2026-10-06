@@ -7,6 +7,7 @@ import { RecipesPage } from '../pages/RecipesPage'
 import { RecipePage } from '../pages/RecipePage'
 import { MenuPage, MenuRecipePage } from '../pages/MenuPage'
 import { PotluckPage } from '../pages/PotluckPage'
+import { ShoppingListPage } from '../pages/ShoppingListPage'
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
           { path: 'menu/:menuId', element: <MenuPage /> },
           { path: 'menu/:menuId/:recipeId', element: <MenuRecipePage /> },
           { path: 'potluck/:potluckId', element: <PotluckPage /> },
+          { path: 'shopping-list', element: <ShoppingListPage /> },
           {
             // The admin area is loaded on demand so visitors never download it.
             path: 'admin',

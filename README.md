@@ -111,6 +111,17 @@ To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2
 
 ---
 
+## Shopping list
+
+- **Adding:** recipe pages have **Add to shopping list** (at the servings currently chosen in the scaler). Date-night menus that share their recipes have **Add the whole menu**. Menu-only cards don't, since they hold no ingredients.
+- **Where it lives:** `/shopping-list` is stored in the visitor's browser (`localStorage`). There's no sign-in and nothing on the server, so each device has its own list. **Share or copy** sends it to a phone's Notes, Messages, or Reminders.
+- **Combining** (`src/lib/shoppingList.ts`, unit-tested):
+  - The same ingredient is added up across recipes (2 cups + 1 cup flour → 3 cups flour). Plurals and preparation words are ignored when matching ("cold butter" = "butter").
+  - Different units stay side by side ("1 cup + 2 tbsp butter"). Units aren't converted.
+  - Ranges round up to the top ("2-3 cloves" → 3), "to taste" lines appear once, and tap water is left off.
+
+---
+
 ## Link previews
 
 When a Foodweb link is shared in a text or chat, apps show the card in `public/og-image.png` (1200×630) with the title "Foodweb". The tags are in `index.html`. Preview crawlers don't run JavaScript, so every page (including menus and potlucks) shares this one card. Making them page-specific would need server-side rendering via a Cloud Function.

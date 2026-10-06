@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useOutletContext } from 'react-router'
 import { useAuth } from '../lib/auth'
+import { buildShoppingItems } from '../lib/shoppingList'
+import { useShoppingList } from '../lib/shoppingStore'
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `hover:text-terracotta-600 ${isActive ? 'text-terracotta-600' : ''}`
@@ -24,6 +26,13 @@ export function Layout() {
   // flashes links while it loads.
   const standalone = pathname.startsWith('/menu/') && !menuAllowsNav
 
+  // Items still to buy, for the badge on the List link.
+  const list = useShoppingList()
+  const toBuy = useMemo(() => {
+    const checked = new Set(list.checked)
+    return buildShoppingItems(list.recipes, list.extras).filter((i) => !checked.has(i.key)).length
+  }, [list])
+
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -45,6 +54,18 @@ export function Layout() {
             <nav className="flex items-center gap-4 text-sm font-semibold text-cocoa-700 sm:gap-6">
               <NavLink to="/recipes" className={navClass}>
                 Recipes
+              </NavLink>
+              <NavLink
+                to="/shopping-list"
+                className={navClass}
+                aria-label={toBuy ? `Shopping list, ${toBuy} items to buy` : 'Shopping list'}
+              >
+                List
+                {toBuy > 0 && (
+                  <span className="ml-1 rounded-full bg-terracotta-600 px-1.5 py-0.5 text-xs text-cream-50">
+                    {toBuy}
+                  </span>
+                )}
               </NavLink>
               {isAdmin && (
                 <NavLink to="/admin" className={navClass}>

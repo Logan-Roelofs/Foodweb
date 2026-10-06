@@ -3,9 +3,10 @@ import { Link, useParams } from 'react-router'
 import { COURSE_LABELS, formatMenuDate, getSharedMenu } from '../lib/menus'
 import { useTitle } from '../lib/format'
 import { useLayout } from '../app/Layout'
+import { addRecipeToList, useShoppingList } from '../lib/shoppingStore'
 import { RecipeView } from '../components/RecipeView'
 import { RecipePhoto } from '../components/RecipeCard'
-import { ErrorNote, Loading, errorMessage } from '../components/ui'
+import { Button, ErrorNote, Loading, errorMessage } from '../components/ui'
 import { MENU_COURSES, type Menu, type MenuRecipe } from '../types'
 
 type Shared = { menu: Menu; recipes: Map<string, MenuRecipe> } | null
@@ -147,6 +148,7 @@ export function MenuPage() {
           ))}
         </div>
       </div>
+      {showRecipes && <AddMenuToList menuId={menu.id} items={courses.flatMap((c) => c.items)} />}
     </article>
   )
 }
@@ -170,7 +172,52 @@ export function MenuRecipePage() {
       >
         ← Back to {data.menu.title}
       </Link>
-      <RecipeView key={recipe.id} recipe={recipe} />
+      <RecipeView
+        key={recipe.id}
+        recipe={recipe}
+        listSource={{ id: recipe.id, href: '/menu/' + menuId + '/' + recipe.id }}
+      />
+    </div>
+  )
+}
+
+/** Puts every dish on the menu onto the shopping list at its usual servings. */
+function AddMenuToList({ menuId, items }: { menuId: string; items: MenuRecipe[] }) {
+  const list = useShoppingList()
+  const cookable = items.filter((r) => r.ingredients.length > 0)
+  const allOnList = cookable.every((r) => list.recipes.some((l) => l.id === r.id))
+  if (cookable.length === 0) return null
+
+  function addAll() {
+    for (const r of cookable) {
+      if (list.recipes.some((l) => l.id === r.id)) continue
+      addRecipeToList({
+        id: r.id,
+        title: r.title,
+        href: `/menu/${menuId}/${r.id}`,
+        servings: r.servings,
+        baseServings: r.servings,
+        ingredients: r.ingredients,
+      })
+    }
+  }
+
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 print:hidden">
+      {allOnList ? (
+        <span className="text-sm font-semibold text-olive-700" role="status">
+          ✓ Everything on this menu is on your shopping list
+        </span>
+      ) : (
+        <Button variant="secondary" onClick={addAll}>
+          🛒 Add the whole menu to my shopping list
+        </Button>
+      )}
+      {list.recipes.length > 0 && (
+        <Link to="/shopping-list" className="text-sm font-semibold text-terracotta-600 hover:underline">
+          View list
+        </Link>
+      )}
     </div>
   )
 }
