@@ -37,9 +37,14 @@ export function AdminRecipesPage() {
           onChange={(e) => setSearch(e.target.value)}
           className={`${inputClass} sm:max-w-xs`}
         />
-        <Link to="/admin/recipes/new" className={buttonClass('primary')}>
-          + New recipe
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/admin/import" className={buttonClass('secondary')}>
+            Bulk import
+          </Link>
+          <Link to="/admin/recipes/new" className={buttonClass('primary')}>
+            + New recipe
+          </Link>
+        </div>
       </div>
 
       {recipes.length === 0 ? (

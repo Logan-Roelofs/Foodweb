@@ -111,6 +111,37 @@ To add a second admin, add another quoted ID to both lists, e.g. `['uid1', 'uid2
 
 ---
 
+## Bulk import
+
+**Dashboard → Recipes → Bulk import** (`/admin/import`) loads a JSON file of recipes as **drafts**. Nothing is public until you open each one and publish it.
+
+- **Duplicates:** recipes you already have (same source link in the notes, or same title) are unticked automatically, so re-running a file won't duplicate anything.
+- **Tags and categories** in the file are matched to yours by name. Missing ones are only created if you tick **Create … new tags/categories**.
+- **Format** (`src/lib/recipeImport.ts` has the full description and validation):
+
+```json
+{
+  "format": "foodweb-recipes",
+  "version": 1,
+  "recipes": [
+    {
+      "title": "Loaded Sweet Potato",
+      "servings": 2,
+      "ingredients": ["1 large sweet potato", "Sauce:", "4 tbsp Greek yogurt"],
+      "steps": ["Bake the potato.", "Load it up."],
+      "description": "…", "prepMinutes": 10, "cookMinutes": 30, "notes": "…",
+      "macros": { "protein": 104, "fat": 34, "carbs": 110 },
+      "tags": ["high protein"], "category": "Mains",
+      "sourceUrl": "https://www.instagram.com/reel/…"
+    }
+  ]
+}
+```
+
+Import files can contain other creators' recipes, so keep them out of this repo.
+
+---
+
 ## Shopping list
 
 - **Adding:** recipe pages have **Add to shopping list** (at the servings currently chosen in the scaler). Date-night menus that share their recipes have **Add the whole menu**. Menu-only cards don't, since they hold no ingredients.

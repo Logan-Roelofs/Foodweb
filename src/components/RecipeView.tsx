@@ -185,7 +185,9 @@ export function RecipeView({
       {recipe.notes && (
         <section className="mt-10 rounded-3xl bg-cream-200/50 p-6 print:mt-6 print:p-0">
           <h2 className="text-xl font-semibold">Notes</h2>
-          <p className="mt-2 whitespace-pre-line text-cocoa-700">{recipe.notes}</p>
+          <p className="mt-2 whitespace-pre-line text-cocoa-700">
+            <LinkedText text={recipe.notes} />
+          </p>
         </section>
       )}
 
@@ -233,5 +235,29 @@ function NutritionPanel({
         {shown.map((k) => `${formatGrams(whole[k]!)} ${MACRO_LABELS[k].toLowerCase()}`).join(' · ')}
       </p>
     </section>
+  )
+}
+
+/** Plain text with https:// links made clickable (e.g. "Adapted from …" credits). */
+function LinkedText({ text }: { text: string }) {
+  const parts = text.split(/(https:\/\/[^\s]+)/g)
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="break-all text-terracotta-600 underline hover:text-terracotta-700"
+          >
+            {part}
+          </a>
+        ) : (
+          part
+        ),
+      )}
+    </>
   )
 }

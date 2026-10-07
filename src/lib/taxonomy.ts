@@ -36,8 +36,10 @@ export function useLabels(kind: LabelKind): { labels: Label[]; loading: boolean 
   return { labels, loading }
 }
 
-export async function createLabel(kind: LabelKind, name: string): Promise<void> {
-  await addDoc(collection(db, kind), { name: name.trim() })
+/** Creates a tag or category and returns its ID. */
+export async function createLabel(kind: LabelKind, name: string): Promise<string> {
+  const ref = await addDoc(collection(db, kind), { name: name.trim() })
+  return ref.id
 }
 
 export async function renameLabel(kind: LabelKind, id: string, name: string): Promise<void> {

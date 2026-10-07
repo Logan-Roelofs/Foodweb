@@ -18,7 +18,8 @@ export function AdminLayout() {
     `rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition sm:px-4 ${
       active ? 'bg-terracotta-500 text-cream-50' : 'text-cocoa-700 hover:bg-cream-200/60'
     }`
-  const onRecipes = pathname === '/admin' || pathname.startsWith('/admin/recipes')
+  const onRecipes =
+    pathname === '/admin' || pathname.startsWith('/admin/recipes') || pathname.startsWith('/admin/import')
 
   return (
     <div>
